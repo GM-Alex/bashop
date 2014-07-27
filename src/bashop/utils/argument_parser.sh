@@ -1,53 +1,61 @@
 #!/usr/bin/env bash
 
-key_exists() {
-  eval '[ ${'$2'[$1]+key_exists} ]'
-}
-
-is_option() {
-  if [[ $1 == --* ]] || [[ $1 == -* ]]; then
-    return 0
-  fi
-
-  return 1
-}
-
-
 parse_arguments() {
   command=''
   subcommand=''
   declare -g -A args=()
 
-  #get function agruments
+  # Get function agruments
   local raw_arguments=("${@}")
 
-  #get definied options
+  # Get definied options
   local opt_required=()
-  local opt_map opt_type_map
+  local opt_map opt_type_map opt_default_arg
   declare -A opt_map=()
   declare -A opt_type_map=()
+  declare -A opt_default_arg=()
 
   for opt in "${!command_options[@]}"; do
+    local cur_opt=${opt}
+
+    # Check if option is valid
+    if ! [[ ${cur_opt} =~ ^([a-z]{1}\|){0,1}[a-zA-Z0-9\-]+[?:+]{1}[=]{0,1}[a-zA-Z0-9\-]*$ ]]; then
+      echo "Wrong pattern for option '${cur_opt}'"
+      exit 1
+    fi
+
+    # Check for arguments
+    local opt_arg_split=()
+
+    if [[ ${cur_opt} =~ [=]{1} ]]; then
+      opt_arg_split=( $(echo ${cur_opt} | grep -o '[^=]*') )
+      cur_opt=${opt_arg_split[0]}
+    fi
+
+    # Get option names
     local full_opt_name=''
-    local opt_names=( $(echo ${opt} | grep -o '[a-z0-9\-]*') )
+    local opt_names=( $(echo ${cur_opt} | grep -o '[^\|?+:]*') )
 
     if [[ ${#opt_names[@]} == 2 ]]; then
       full_opt_name="--${opt_names[1]}"
       opt_map["-${opt_names[0]}"]=${full_opt_name}
     elif [[ ${#opt_names[@]} == 1 ]]; then
       full_opt_name="--${opt_names[0]}"
-      opt_map[${full_opt_name}]=${full_opt_name}
-    else
-      echo "Error wrong defined options"
-      exit 1
     fi
 
-    local opt_type=$(echo ${opt} | grep -o '[:?+]')
+    opt_map[${full_opt_name}]=${full_opt_name}
 
-    if [[ ${opt_type} == "" ]]; then
-      echo "Error no option type given for ${full_opt_name}"
-      exit 1
-    elif [[ ${opt_type} == ":" ]]; then
+    # Set default arg
+    if [[ ${#opt_arg_split[@]} == 2 ]]; then
+      opt_default_arg[${full_opt_name}]=${opt_arg_split[1]}
+    elif [[ ${#opt_arg_split[@]} == 1 ]]; then
+      opt_default_arg[${full_opt_name}]=false
+    fi
+
+    # Get option type
+    local opt_type=$(echo ${cur_opt} | grep -o '[:?+]')
+
+    if [[ ${opt_type} == ":" ]]; then
       opt_required+=(${full_opt_name})
     fi
 
@@ -55,7 +63,7 @@ parse_arguments() {
   done
 
 
-  #iterate over the raw argumgents
+  # Iterate over the raw argumgents
   local no_commands=${#commands[@]}
   local no_command_arguments=${#command_arguments[@]}
   local start_options=$((no_commands + no_command_arguments))
@@ -70,7 +78,7 @@ parse_arguments() {
 
     if [[ ${counter} -lt ${no_commands} ]] && !(is_option ${arg}); then
       if [[ ${arg} != ${commands[$counter]} ]]; then
-        echo "Unknown command ${arg} called"
+        echo "Unknown command '${arg}' called"
         exit 1
       fi
     elif [[ ${counter} -lt ${start_options} ]] && [[ ${counter} -ge ${no_commands} ]] && !(is_option ${arg}); then
@@ -80,7 +88,7 @@ parse_arguments() {
       if (key_exists ${arg} opt_map); then
         arg=${opt_map[${arg}]}
       else
-        echo "Invalid option ${arg}"
+        echo "Invalid option '${arg}'"
         exit 1
       fi
 
@@ -96,35 +104,48 @@ parse_arguments() {
       elif !(${is_multiple_opt}) && !(key_exists ${current_arg} args); then
         args[${current_arg}]=''
       elif (key_exists ${current_arg} args) && [[ ${is_multiple_opt} ]]; then
-        echo "Error ${current_arg} can't be multiple definied"
+        echo "Error '${current_arg}' can't be multiple definied"
         exit 1
       fi
 
-      local next=$((counter + 1))
+      if (key_exists "${current_arg}" opt_default_arg); then
+        local opt_argument=false
+        local next=$((counter + 1))
 
-      if [[ ${next} -lt ${no_raw_arguments} ]]; then
-        arg=${raw_arguments[${next}]}
+        if [[ ${next} -lt ${no_raw_arguments} ]]; then
+          arg=${raw_arguments[${next}]}
 
-        if [[ ${arg} != "" ]] && !(is_option ${arg}); then
+          if [[ ${arg} != "" ]] && !(is_option ${arg}); then
+            opt_argument=${arg}
+            counter=${next}
+          fi
+        fi
+
+        if [[ ${opt_argument} == false ]] && [[ ${opt_default_arg["${current_arg}"]} != false ]]; then
+          opt_argument=${opt_default_arg["${current_arg}"]}
+        fi
+
+        if [[ ${opt_argument} != false ]]; then
           if ${is_multiple_opt}; then
             local no_opt_args=${args["${current_arg},#"]}
-            args["${current_arg},${no_opt_args}"]="${arg}"
+            args["${current_arg},${no_opt_args}"]="${opt_argument}"
             args["${current_arg},#"]=$((no_opt_args+1))
           else
-            args[${current_arg}]="${arg}"
+            args[${current_arg}]="${opt_argument}"
           fi
-
-          counter=${next}
+        else
+          echo "Error missing required argument for option '${current_arg}'"
+          exit 1
         fi
       fi
     else
       if [[ ${counter} -lt ${no_commands} ]]; then
-        echo "invalide command ${arg}"
+        echo "Invalide command '${arg}'"
       elif [[ ${counter} -lt ${start_options} ]]; then
         req_param_name=${command_arguments[$((counter - no_commands))]}
-        echo "missing required parameter ${req_param_name}"
+        echo "Missing required parameter '${req_param_name}'"
       elif [[ ${counter} -ge ${start_options} ]]; then
-        echo "unknown option ${arg}"
+        echo "Unknown option '${arg}'"
       fi
 
       exit 1
@@ -133,7 +154,7 @@ parse_arguments() {
     counter=$((counter + 1))
   done
 
-  #Check for missing required vars
+  # Check for missing required vars
   for req_opt in "${opt_required[@]}"; do
     if !(key_exists ${req_opt} args); then
       echo "Option ${req_opt} is required"
