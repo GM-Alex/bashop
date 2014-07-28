@@ -12,7 +12,7 @@ declare -g -A _BASHOP_COMMAND_OPTIONS=(
   ["single-repeatable+"]="A repeatable option"
   ["r|required-opt:"]="A required option with shortcut"
   ["o|optional-opt?"]="An optional option with shortcut"
-  ["p|repeatable-opt+"]="A repeatable option with shortcut"
+  ["p|repeatable-opt+="]="A repeatable option with shortcut"
   ["a|optional-argument-opt?=test"]="A required option with optional argument"
   ["b|required-argument-opt?="]="A required option with requrired argument"
 )
@@ -32,7 +32,7 @@ bashop::run_command() {
         echo "|==> ${args[${k},${i}]}"
         i=$[${i}+1]
       done
-    elif [[ $(echo ${key} | grep -o '[\,]*') == "" ]]; then
+    elif [[ -z $(echo ${key} | grep -o '[\,]*') ]]; then
       echo "|> ${k}"
       echo "|==> ${args[${k}]}"
     fi

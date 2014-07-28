@@ -10,7 +10,7 @@ bashop::abs_dirname() {
   local cwd="$(pwd)"
   local path="${1}"
 
-  while [ -n "${path}" ]; do
+  while [[ -n "${path}" ]]; do
     cd "${path%/*}"
     local name="${path##*/}"
     path="$(bashop::resolve_link "${name}" || true)"

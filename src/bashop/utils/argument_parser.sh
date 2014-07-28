@@ -113,7 +113,7 @@ bashop::parse_arguments() {
         if [[ ${next} -lt ${no_raw_arguments} ]]; then
           arg=${raw_arguments[${next}]}
 
-          if [[ ${arg} != "" ]] && !(bashop::is_option ${arg}); then
+          if [[ -n "${arg}" ]] && !(bashop::is_option ${arg}); then
             opt_argument=${arg}
             counter=${next}
           fi
