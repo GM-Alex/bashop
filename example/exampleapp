@@ -1,2 +1,10 @@
 #!/usr/bin/env bash
-source ../src/bashop/bootstrap.sh
+bashop::init() {
+  echo "init: ${_BASHOP_ROOT}";
+}
+
+bashop::destroy() {
+  echo "destroy: ${_BASHOP_ROOT}";
+}
+
+source "../src/bashop/bootstrap.sh"

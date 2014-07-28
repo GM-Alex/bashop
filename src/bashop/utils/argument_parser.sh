@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-parse_arguments() {
-  command=''
-  subcommand=''
+bashop::parse_arguments() {
   declare -g -A args=()
 
   # Get function agruments
@@ -15,7 +13,7 @@ parse_arguments() {
   declare -A opt_type_map=()
   declare -A opt_default_arg=()
 
-  for opt in "${!command_options[@]}"; do
+  for opt in "${!_BASHOP_COMMAND_OPTIONS[@]}"; do
     local cur_opt=${opt}
 
     # Check if option is valid
@@ -64,8 +62,8 @@ parse_arguments() {
 
 
   # Iterate over the raw argumgents
-  local no_commands=${#commands[@]}
-  local no_command_arguments=${#command_arguments[@]}
+  local no_commands=${#_BASHOP_COMMAND[@]}
+  local no_command_arguments=${#_BASHOP_COMMAND_ARGUMENTS[@]}
   local start_options=$((no_commands + no_command_arguments))
   local no_raw_arguments=${#raw_arguments[@]}
   local arg=''
@@ -76,16 +74,16 @@ parse_arguments() {
   while [[ ${counter} -lt ${no_raw_arguments} ]]; do
     arg=${raw_arguments[${counter}]}
 
-    if [[ ${counter} -lt ${no_commands} ]] && !(is_option ${arg}); then
-      if [[ ${arg} != ${commands[$counter]} ]]; then
+    if [[ ${counter} -lt ${no_commands} ]] && !(bashop::is_option ${arg}); then
+      if [[ ${arg} != ${_BASHOP_COMMAND[${counter}]} ]]; then
         echo "Unknown command '${arg}' called"
         exit 1
       fi
-    elif [[ ${counter} -lt ${start_options} ]] && [[ ${counter} -ge ${no_commands} ]] && !(is_option ${arg}); then
-      req_param_name=${command_arguments[$((counter - no_commands))]}
+    elif [[ ${counter} -lt ${start_options} ]] && [[ ${counter} -ge ${no_commands} ]] && !(bashop::is_option ${arg}); then
+      req_param_name=${_BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
       args[${req_param_name}]=${arg}
-    elif [[ ${counter} -ge ${start_options} ]] && is_option ${arg}; then
-      if (key_exists ${arg} opt_map); then
+    elif [[ ${counter} -ge ${start_options} ]] && (bashop::is_option ${arg}); then
+      if (bashop::key_exists ${arg} opt_map); then
         arg=${opt_map[${arg}]}
       else
         echo "Invalid option '${arg}'"
@@ -95,27 +93,27 @@ parse_arguments() {
       current_arg=${arg}
       local is_multiple_opt=false
 
-      if [[ ${opt_type_map[$current_arg]} == '+' ]]; then
+      if [[ ${opt_type_map[${current_arg}]} == '+' ]]; then
         is_multiple_opt=true
       fi
 
-      if ${is_multiple_opt} && !(key_exists "${current_arg},#" args); then
+      if ${is_multiple_opt} && !(bashop::key_exists "${current_arg},#" args); then
         args["${current_arg},#"]=0
-      elif !(${is_multiple_opt}) && !(key_exists ${current_arg} args); then
+      elif !(${is_multiple_opt}) && !(bashop::key_exists ${current_arg} args); then
         args[${current_arg}]=''
-      elif (key_exists ${current_arg} args) && [[ ${is_multiple_opt} ]]; then
+      elif (bashop::key_exists ${current_arg} args) && [[ ${is_multiple_opt} ]]; then
         echo "Error '${current_arg}' can't be multiple definied"
         exit 1
       fi
 
-      if (key_exists "${current_arg}" opt_default_arg); then
+      if (bashop::key_exists "${current_arg}" opt_default_arg); then
         local opt_argument=false
         local next=$((counter + 1))
 
         if [[ ${next} -lt ${no_raw_arguments} ]]; then
           arg=${raw_arguments[${next}]}
 
-          if [[ ${arg} != "" ]] && !(is_option ${arg}); then
+          if [[ ${arg} != "" ]] && !(bashop::is_option ${arg}); then
             opt_argument=${arg}
             counter=${next}
           fi
@@ -142,7 +140,7 @@ parse_arguments() {
       if [[ ${counter} -lt ${no_commands} ]]; then
         echo "Invalide command '${arg}'"
       elif [[ ${counter} -lt ${start_options} ]]; then
-        req_param_name=${command_arguments[$((counter - no_commands))]}
+        req_param_name=${_BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
         echo "Missing required parameter '${req_param_name}'"
       elif [[ ${counter} -ge ${start_options} ]]; then
         echo "Unknown option '${arg}'"
@@ -156,7 +154,7 @@ parse_arguments() {
 
   # Check for missing required vars
   for req_opt in "${opt_required[@]}"; do
-    if !(key_exists ${req_opt} args); then
+    if !(bashop::key_exists ${req_opt} args); then
       echo "Option ${req_opt} is required"
       exit 1
     fi
