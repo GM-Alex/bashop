@@ -10,7 +10,7 @@ Bashop is a bash framework which makes your life easier if you want to write an 
 
 ### Restrictions ###
 
-Don't let the name of your app functions start with _bashop::_ and don't let your global variable names start with _\_BASHOP_, don't even think about it.
+Don't let the name of your app functions start with _bashop::_ and don't let your global variable names start with _\_BASHOP_, don't even think about it :).
 
 
 ### Coding conventions ###

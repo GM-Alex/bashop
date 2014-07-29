@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 
-_BASHOP_COMMAND_DESCRIPTION="The example command"
+_BASHOP_COMMAND_DESCRIPTION="The example sub command"
 
 _BASHOP_COMMAND_ARGUMENTS=(
-  "name"
-  "version"
+  "sub-name"
+  "sub-version"
 )
 
 declare -g -A _BASHOP_COMMAND_OPTIONS=(
-  ["single-required:"]="A required option"
-  ["single-optional?"]="An optional option"
-  ["single-repeatable+"]="A repeatable option"
-  ["r|required-opt:"]="A required option with shortcut"
-  ["o|optional-opt?"]="An optional option with shortcut"
-  ["p|repeatable-opt+="]="A repeatable option with shortcut"
-  ["a|optional-argument-opt?=test"]="A required option with optional argument"
-  ["b|required-argument-opt?="]="A required option with requrired argument"
+  ["sub-single-required:"]="A required option"
+  ["sub-single-optional?"]="An optional option"
+  ["sub-single-repeatable+"]="A repeatable option"
+  ["r|sub-required-opt:"]="A required option with shortcut"
+  ["o|sub-optional-opt?"]="An optional option with shortcut"
+  ["p|sub-repeatable-opt+="]="A repeatable option with shortcut"
+  ["a|sub-optional-argument-opt?=test"]="A required option with optional argument"
+  ["b|sub-required-argument-opt?="]="A required option with requrired argument"
 )
 
 bashop::run_command() {

@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 
-bashop::parse_arguments() {
+bashop::command::__check_dependencies() {
+  if ! [[ -n ${_BASHOP_COMMAND_ARGUMENTS+1} ]]; then
+    bashop::logger::framework_error "Error the global variable '_BASHOP_COMMAND_ARGUMENTS' must be defined"
+    exit 1
+  fi
+
+  local com_options=( ${!_BASHOP_COMMAND_OPTIONS[@]} )
+
+  if [[ ${#com_options[@]} -le 0 ]]; then
+    bashop::logger::framework_error "Error the global variable '_BASHOP_COMMAND_OPTIONS' must be defined"
+    exit 1
+  fi
+}
+
+bashop::command::show_help() {
+  bashop::command::__check_dependencies
+}
+
+bashop::command::parse_arguments() {
+  bashop::command::__check_dependencies
+
   declare -g -A args=()
 
   # Get function agruments
@@ -18,7 +38,7 @@ bashop::parse_arguments() {
 
     # Check if option is valid
     if ! [[ ${cur_opt} =~ ^([a-z]{1}\|){0,1}[a-zA-Z0-9\-]+[?:+]{1}[=]{0,1}[a-zA-Z0-9\-]*$ ]]; then
-      echo "Wrong pattern for option '${cur_opt}'"
+      bashop::logger::framework_error "Wrong pattern for option '${cur_opt}'"
       exit 1
     fi
 
@@ -74,19 +94,19 @@ bashop::parse_arguments() {
   while [[ ${counter} -lt ${no_raw_arguments} ]]; do
     arg=${raw_arguments[${counter}]}
 
-    if [[ ${counter} -lt ${no_commands} ]] && !(bashop::is_option ${arg}); then
+    if [[ ${counter} -lt ${no_commands} ]] && !(bashop::utils::is_option ${arg}); then
       if [[ ${arg} != ${_BASHOP_COMMAND[${counter}]} ]]; then
-        echo "Unknown command '${arg}' called"
+        bashop::logger::framework_error "Unknown command '${arg}' called"
         exit 1
       fi
-    elif [[ ${counter} -lt ${start_options} ]] && [[ ${counter} -ge ${no_commands} ]] && !(bashop::is_option ${arg}); then
+    elif [[ ${counter} -lt ${start_options} ]] && [[ ${counter} -ge ${no_commands} ]] && !(bashop::utils::is_option ${arg}); then
       req_param_name=${_BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
       args[${req_param_name}]=${arg}
-    elif [[ ${counter} -ge ${start_options} ]] && (bashop::is_option ${arg}); then
-      if (bashop::key_exists ${arg} opt_map); then
+    elif [[ ${counter} -ge ${start_options} ]] && (bashop::utils::is_option ${arg}); then
+      if (bashop::utils::key_exists ${arg} opt_map); then
         arg=${opt_map[${arg}]}
       else
-        echo "Invalid option '${arg}'"
+        bashop::logger::error "Invalid option '${arg}'"
         exit 1
       fi
 
@@ -97,23 +117,23 @@ bashop::parse_arguments() {
         is_multiple_opt=true
       fi
 
-      if ${is_multiple_opt} && !(bashop::key_exists "${current_arg},#" args); then
+      if ${is_multiple_opt} && !(bashop::utils::key_exists "${current_arg},#" args); then
         args["${current_arg},#"]=0
-      elif !(${is_multiple_opt}) && !(bashop::key_exists ${current_arg} args); then
+      elif !(${is_multiple_opt}) && !(bashop::utils::key_exists ${current_arg} args); then
         args[${current_arg}]=''
-      elif (bashop::key_exists ${current_arg} args) && [[ ${is_multiple_opt} ]]; then
-        echo "Error '${current_arg}' can't be multiple definied"
+      elif (bashop::utils::key_exists ${current_arg} args) && [[ ${is_multiple_opt} ]]; then
+        bashop::logger::error "Error '${current_arg}' can't be multiple definied"
         exit 1
       fi
 
-      if (bashop::key_exists "${current_arg}" opt_default_arg); then
+      if (bashop::utils::key_exists "${current_arg}" opt_default_arg); then
         local opt_argument=false
         local next=$((counter + 1))
 
         if [[ ${next} -lt ${no_raw_arguments} ]]; then
           arg=${raw_arguments[${next}]}
 
-          if [[ -n "${arg}" ]] && !(bashop::is_option ${arg}); then
+          if [[ -n "${arg}" ]] && !(bashop::utils::is_option ${arg}); then
             opt_argument=${arg}
             counter=${next}
           fi
@@ -132,18 +152,18 @@ bashop::parse_arguments() {
             args[${current_arg}]="${opt_argument}"
           fi
         else
-          echo "Error missing required argument for option '${current_arg}'"
+          bashop::logger::error "Error missing required argument for option '${current_arg}'"
           exit 1
         fi
       fi
     else
       if [[ ${counter} -lt ${no_commands} ]]; then
-        echo "Invalide command '${arg}'"
+        bashop::logger::error "Invalide command '${arg}'"
       elif [[ ${counter} -lt ${start_options} ]]; then
         req_param_name=${_BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
-        echo "Missing required parameter '${req_param_name}'"
+        bashop::logger::error "Missing required parameter '${req_param_name}'"
       elif [[ ${counter} -ge ${start_options} ]]; then
-        echo "Unknown option '${arg}'"
+        bashop::logger::error "Unknown option '${arg}'"
       fi
 
       exit 1
@@ -154,8 +174,8 @@ bashop::parse_arguments() {
 
   # Check for missing required vars
   for req_opt in "${opt_required[@]}"; do
-    if !(bashop::key_exists ${req_opt} args); then
-      echo "Option ${req_opt} is required"
+    if !(bashop::utils::key_exists ${req_opt} args); then
+      bashop::logger::error "Option ${req_opt} is required"
       exit 1
     fi
   done

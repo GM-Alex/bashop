@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 bashop::init() {
-  echo "init: ${_BASHOP_ROOT}";
+  bashop::logger::info "init: ${_BASHOP_ROOT}";
 }
 
 bashop::destroy() {
-  echo "destroy: ${_BASHOP_ROOT}";
+  bashop::logger::info "destroy: ${_BASHOP_ROOT}";
 }
+
+_BASHOP_APP_NAME='exampleapp'
 
 source "../src/bashop/bootstrap.sh"
