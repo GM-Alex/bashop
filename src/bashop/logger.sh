@@ -17,23 +17,27 @@ bashop::logger::echo() {
 }
 
 bashop::logger::info() {
-  bashop::logger::echo "\033[00;34m${1}\033[0m" "${*:2}"
-
-  if ! [[ -n ${2+1} ]]; then
-    printf "\n"
-  fi
+  printf "\033[00;34m"
+  bashop::logger::echo "${1}" "${@:2}"
+  printf "\033[0m"
 }
 
 bashop::logger::user() {
-  bashop::logger::echo "\033[0;33m${1}\033[0m" "${*:2}"
+  printf "\033[0;33m"
+  bashop::logger::echo "${1}" "${@:2}"
+  printf "\033[0m"
 }
 
 bashop::logger::success() {
-  bashop::logger::echo "\033[00;32m${1}\033[0m" "${*:2}"
+  printf "\033[00;32m"
+  bashop::logger::echo "${1}" "${@:2}"
+  printf "\033[0m"
 }
 
 bashop::logger::error() {
-  bashop::logger::echo "\033[00;31m${1}\033[0m" "${*:2}"
+  printf "\033[00;31m"
+  bashop::logger::echo "Error: ${1}" "${@:2}"
+  printf "\033[0m"
 }
 
 bashop::logger::framework_error() {
@@ -41,5 +45,7 @@ bashop::logger::framework_error() {
   msg+="It's not your fault... expect you are the developer of this application. If you are a user "
   msg+="please send the developer the following message as error report:\n${1}"
 
-  bashop::logger::echo "\033[00;31m${msg}\033[0m" "${*:2}"
+  printf "\033[00;31m"
+  bashop::logger::echo "${msg}" "${@:2}"
+  printf "\033[0m"
 }
