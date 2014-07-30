@@ -2,14 +2,14 @@
 
 bashop::command::__check_dependencies() {
   if ! [[ -n ${_BASHOP_COMMAND_ARGUMENTS+1} ]]; then
-    bashop::logger::framework_error "Error the global variable '_BASHOP_COMMAND_ARGUMENTS' must be defined"
+    bashop::logger::framework_error "The global variable '_BASHOP_COMMAND_ARGUMENTS' must be defined"
     exit 1
   fi
 
   local com_options=( ${!_BASHOP_COMMAND_OPTIONS[@]} )
 
   if [[ ${#com_options[@]} -le 0 ]]; then
-    bashop::logger::framework_error "Error the global variable '_BASHOP_COMMAND_OPTIONS' must be defined"
+    bashop::logger::framework_error "The global variable '_BASHOP_COMMAND_OPTIONS' must be defined"
     exit 1
   fi
 }
@@ -37,47 +37,39 @@ bashop::command::parse_arguments() {
     local cur_opt=${opt}
 
     # Check if option is valid
-    if ! [[ ${cur_opt} =~ ^([a-z]{1}\|){0,1}[a-zA-Z0-9\-]+[?:+]{1}[=]{0,1}[a-zA-Z0-9\-]*$ ]]; then
+    if ! [[ ${cur_opt} =~ ^([a-z]{1}\|){0,1}([a-zA-Z0-9\-]+)([?:+]{1})([=]{0,1})([a-zA-Z0-9\-]*)$ ]]; then
       bashop::logger::framework_error "Wrong pattern for option '${cur_opt}'"
       exit 1
     fi
 
-    # Check for arguments
-    local opt_arg_split=()
-
-    if [[ ${cur_opt} =~ [=]{1} ]]; then
-      opt_arg_split=( $(echo ${cur_opt} | grep -o '[^=]*') )
-      cur_opt=${opt_arg_split[0]}
-    fi
+    local short_opt_name=${BASH_REMATCH[1]//\|/}
+    local full_opt_name="--${BASH_REMATCH[2]}"
+    local opt_type=${BASH_REMATCH[3]}
+    local has_arguments=${BASH_REMATCH[4]}
+    local default_arg=${BASH_REMATCH[5]}
 
     # Get option names
-    local full_opt_name=''
-    local opt_names=( $(echo ${cur_opt} | grep -o '[^\|?+:]*') )
-
-    if [[ ${#opt_names[@]} == 2 ]]; then
-      full_opt_name="--${opt_names[1]}"
-      opt_map["-${opt_names[0]}"]=${full_opt_name}
-    elif [[ ${#opt_names[@]} == 1 ]]; then
-      full_opt_name="--${opt_names[0]}"
+    if [[ -n "${short_opt_name}" ]]; then
+      opt_map["-${short_opt_name}"]=${full_opt_name}
     fi
 
     opt_map[${full_opt_name}]=${full_opt_name}
 
-    # Set default arg
-    if [[ ${#opt_arg_split[@]} == 2 ]]; then
-      opt_default_arg[${full_opt_name}]=${opt_arg_split[1]}
-    elif [[ ${#opt_arg_split[@]} == 1 ]]; then
-      opt_default_arg[${full_opt_name}]=false
-    fi
-
     # Get option type
-    local opt_type=$(echo ${cur_opt} | grep -o '[:?+]')
-
     if [[ ${opt_type} == ":" ]]; then
       opt_required+=(${full_opt_name})
     fi
 
     opt_type_map[${full_opt_name}]=${opt_type}
+
+    # Set default arg
+    if [[ -n "${has_arguments}" ]]; then
+      if [[ -n "${default_arg}" ]]; then
+        opt_default_arg[${full_opt_name}]=${default_arg}
+      else
+        opt_default_arg[${full_opt_name}]=false
+      fi
+    fi
   done
 
 
@@ -122,7 +114,7 @@ bashop::command::parse_arguments() {
       elif !(${is_multiple_opt}) && !(bashop::utils::key_exists ${current_arg} args); then
         args[${current_arg}]=''
       elif (bashop::utils::key_exists ${current_arg} args) && [[ ${is_multiple_opt} ]]; then
-        bashop::logger::error "Error '${current_arg}' can't be multiple definied"
+        bashop::logger::error "'${current_arg}' can't be multiple definied"
         exit 1
       fi
 
@@ -152,7 +144,7 @@ bashop::command::parse_arguments() {
             args[${current_arg}]="${opt_argument}"
           fi
         else
-          bashop::logger::error "Error missing required argument for option '${current_arg}'"
+          bashop::logger::error "Missing required argument for option '${current_arg}'"
           exit 1
         fi
       fi
