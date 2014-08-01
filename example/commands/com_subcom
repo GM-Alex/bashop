@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-_BASHOP_COMMAND_DESCRIPTION="The example sub command"
+BASHOP_COMMAND_DESCRIPTION="The example sub command"
 
-_BASHOP_COMMAND_ARGUMENTS=(
+BASHOP_COMMAND_ARGUMENTS=(
   "sub-name"
   "sub-version"
 )
 
-declare -g -A _BASHOP_COMMAND_OPTIONS=(
+declare -g -A BASHOP_COMMAND_OPTIONS=(
   ["sub-single-required:"]="A required option"
   ["sub-single-optional?"]="An optional option"
   ["sub-single-repeatable+"]="A repeatable option"

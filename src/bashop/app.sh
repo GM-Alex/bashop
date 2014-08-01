@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 
 bashop::app::__check_dependencies() {
-  if ! [[ -n ${_BASHOP_APP_NAME+1} ]]; then
-    bashop::logger::framework_error "The global variable '_BASHOP_APP_NAME' must be defined"
+  if ! [[ -n ${BASHOP_APP_NAME+1} ]]; then
+    bashop::logger::framework_error "The global variable 'BASHOP_APP_NAME' must be defined"
     exit 1
   fi
 }
 
 bashop::app::show_help() {
   bashop::logger::info "Usage:"
-  bashop::logger::info "  ${_BASHOP_APP_NAME} <command> <arguments> [options]\n"
+  bashop::logger::info "  ${BASHOP_APP_NAME} <command> <arguments> [options]\n"
   bashop::logger::info "Commands:"
 
-  local commands=( "${_BASHOP_APP_COMMAND_ROOT}/help" "${_BASHOP_APP_COMMAND_ROOT}/*" )
+  local commands=( "${BASHOP_APP_COMMAND_ROOT}/help" "${BASHOP_APP_COMMAND_ROOT}/*" )
   local max_length=$(bashop::utils::max_string_lenght ${commands[@]})
-  _BASHOP_COMMAND_DESCRIPTION='show this help'
+  BASHOP_COMMAND_DESCRIPTION='show this help'
 
   for command in ${commands[@]}; do
     if ! [[ ${command} =~ \/help$ ]]; then
@@ -27,7 +27,7 @@ bashop::app::show_help() {
     spaces=$(bashop::utils::string_repeat ' ' ${no_spaces})
 
     bashop::logger::info "  ${single_command//_/ }${spaces}  " false
-    bashop::logger::info "${_BASHOP_COMMAND_DESCRIPTION}"
+    bashop::logger::info "${BASHOP_COMMAND_DESCRIPTION}"
   done
 }
 
@@ -51,7 +51,7 @@ bashop::app::start() {
     * )
       local command=''
       local command_path=''
-      local tmp_path="${_BASHOP_APP_COMMAND_ROOT}/"
+      local tmp_path="${BASHOP_APP_COMMAND_ROOT}/"
 
       for param in ${@}; do
         if !(bashop::utils::is_option ${param}); then

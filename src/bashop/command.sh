@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 bashop::command::__check_dependencies() {
-  if ! [[ -n ${_BASHOP_COMMAND_ARGUMENTS+1} ]]; then
-    bashop::logger::framework_error "The global variable '_BASHOP_COMMAND_ARGUMENTS' must be defined"
+  if ! [[ -n ${BASHOP_COMMAND_ARGUMENTS+1} ]]; then
+    bashop::logger::framework_error "The global variable 'BASHOP_COMMAND_ARGUMENTS' must be defined"
     exit 1
   fi
 
-  local com_options=( ${!_BASHOP_COMMAND_OPTIONS[@]} )
+  local com_options=( ${!BASHOP_COMMAND_OPTIONS[@]} )
 
   if [[ ${#com_options[@]} -le 0 ]]; then
-    bashop::logger::framework_error "The global variable '_BASHOP_COMMAND_OPTIONS' must be defined"
+    bashop::logger::framework_error "The global variable 'BASHOP_COMMAND_OPTIONS' must be defined"
     exit 1
   fi
 }
@@ -33,7 +33,7 @@ bashop::command::parse_arguments() {
   declare -A opt_type_map=()
   declare -A opt_default_arg=()
 
-  for opt in "${!_BASHOP_COMMAND_OPTIONS[@]}"; do
+  for opt in "${!BASHOP_COMMAND_OPTIONS[@]}"; do
     local cur_opt=${opt}
 
     # Check if option is valid
@@ -75,7 +75,7 @@ bashop::command::parse_arguments() {
 
   # Iterate over the raw argumgents
   local no_commands=${#_BASHOP_COMMAND[@]}
-  local no_command_arguments=${#_BASHOP_COMMAND_ARGUMENTS[@]}
+  local no_command_arguments=${#BASHOP_COMMAND_ARGUMENTS[@]}
   local start_options=$((no_commands + no_command_arguments))
   local no_raw_arguments=${#raw_arguments[@]}
   local arg=''
@@ -92,7 +92,7 @@ bashop::command::parse_arguments() {
         exit 1
       fi
     elif [[ ${counter} -lt ${start_options} ]] && [[ ${counter} -ge ${no_commands} ]] && !(bashop::utils::is_option ${arg}); then
-      req_param_name=${_BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
+      req_param_name=${BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
       args[${req_param_name}]=${arg}
     elif [[ ${counter} -ge ${start_options} ]] && (bashop::utils::is_option ${arg}); then
       if (bashop::utils::key_exists ${arg} opt_map); then
@@ -152,7 +152,7 @@ bashop::command::parse_arguments() {
       if [[ ${counter} -lt ${no_commands} ]]; then
         bashop::logger::error "Invalide command '${arg}'"
       elif [[ ${counter} -lt ${start_options} ]]; then
-        req_param_name=${_BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
+        req_param_name=${BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
         bashop::logger::error "Missing required parameter '${req_param_name}'"
       elif [[ ${counter} -ge ${start_options} ]]; then
         bashop::logger::error "Unknown option '${arg}'"

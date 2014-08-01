@@ -21,14 +21,14 @@ bashop::abs_dirname() {
 }
 
 # Set needed paths
-readonly _BASHOP_ROOT="$(bashop::abs_dirname "${BASH_SOURCE[0]}")"
-readonly _BASHOP_APP_ROOT="$(bashop::abs_dirname "${0}")"
-readonly _BASHOP_APP_COMMAND_ROOT="${_BASHOP_APP_ROOT}/commands"
+readonly BASHOP_ROOT="$(bashop::abs_dirname "${BASH_SOURCE[0]}")"
+readonly BASHOP_APP_ROOT="$(bashop::abs_dirname "${0}")"
+readonly BASHOP_APP_COMMAND_ROOT="${BASHOP_APP_ROOT}/commands"
 
 # Include files
-source "${_BASHOP_ROOT}/utils.sh"
-source "${_BASHOP_ROOT}/logger.sh"
-source "${_BASHOP_ROOT}/command.sh"
-source "${_BASHOP_ROOT}/app.sh"
+source "${BASHOP_ROOT}/utils.sh"
+source "${BASHOP_ROOT}/logger.sh"
+source "${BASHOP_ROOT}/command.sh"
+source "${BASHOP_ROOT}/app.sh"
 
 bashop::app::start "${@}"
