@@ -72,6 +72,60 @@ bashop::app::start() {
         exit 1
       fi
 
+      local com_arg='(([\<][a-zA-Z0-9]+[\>])([.]{3}){0,1})'
+      local com_arg_requried_regex="^${com_arg}$"
+      local com_arg_optional_regex="^\[${com_arg}\]$"
+
+      #Check for right comment syntax and cut out leading spaces
+      local option_regex='^#\?o([ ]*)'
+
+      #Get short option
+      option_regex+='('
+      option_regex+='(-[a-zA-Z]{1})([.]{3}){0,1}'
+      option_regex+='( ([\<][a-z]+[\>])| ([A-Z]+)){0,1}'
+      option_regex+='){0,1}'
+
+      #Option divider
+      option_regex+='[,]{0,1} '
+
+      #Get long option
+      option_regex+='('
+      option_regex+='(--[a-zA-Z0-9\-]+)([.]{3}){0,1}'
+      option_regex+='(=([\<][a-z]+[\>])| ([A-Z]+)){0,1}'
+      option_regex+='){0,1}'
+
+      #Check for default value
+      option_regex+='([^\[]*)(\[default: ([a-zA-Z0-9]+)\]){0,1}.*$'
+
+      while read line; do
+          if [[ ${line} =~ ^#\?c([ ]*)(.*)$ ]]; then
+            local com_args=( "${BASH_REMATCH[2]}" )
+
+            for com_arg in ${com_args[@]}; do
+              if [[ ${com_arg} =~ ${com_arg_requried_regex} ]]; then
+                echo "Requried: ${com_arg}"
+              elif [[ ${com_arg} =~ ${com_arg_optional_regex} ]]; then
+                echo "Optional: ${com_arg}"
+              fi
+            done
+
+            exit
+          elif [[ ${line} =~ ${option_regex} ]]; then
+            echo "--- Option ---"
+
+            echo "Short: ${BASH_REMATCH[3]}"
+            echo "Short repeat: ${BASH_REMATCH[4]}"
+            echo "Short Arg #1: ${BASH_REMATCH[6]}"
+            echo "Short Arg #2: ${BASH_REMATCH[7]}"
+            echo "Long: ${BASH_REMATCH[9]}"
+            echo "Long repeat: ${BASH_REMATCH[10]}"
+            echo "Long Arg #1: ${BASH_REMATCH[12]}"
+            echo "Long Arg #2: ${BASH_REMATCH[13]}"
+            echo "Default: ${BASH_REMATCH[16]}"
+            echo ""
+          fi
+      done < "${command_path}"
+
       source "${command_path}"
       bashop::command::parse_arguments ${@}
 
