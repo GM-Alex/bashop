@@ -37,7 +37,7 @@ bashop::command::parse_arguments() {
     local cur_opt=${opt}
 
     # Check if option is valid
-    if ! [[ ${cur_opt} =~ ^([a-z]{1}\|){0,1}([a-zA-Z0-9\-]+)([?:+]{1})([=]{0,1})([a-zA-Z0-9\-]*)$ ]]; then
+    if ! [[ ${cur_opt} =~ ^([a-z]{1}\|){0,1}([a-zA-Z0-9\-]+)([?:+]{1})(=\<([^:]+):{0,1}([a-zA-Z0-9\-]*)\>){0,1}$ ]]; then
       bashop::logger::framework_error "Wrong pattern for option '${cur_opt}'"
       exit 1
     fi
@@ -45,8 +45,8 @@ bashop::command::parse_arguments() {
     local short_opt_name=${BASH_REMATCH[1]//\|/}
     local full_opt_name="--${BASH_REMATCH[2]}"
     local opt_type=${BASH_REMATCH[3]}
-    local has_arguments=${BASH_REMATCH[4]}
-    local default_arg=${BASH_REMATCH[5]}
+    local has_arguments=${BASH_REMATCH[5]}
+    local default_arg=${BASH_REMATCH[6]}
 
     # Get option names
     if [[ -n "${short_opt_name}" ]]; then
