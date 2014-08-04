@@ -62,10 +62,12 @@ bashop::app::start() {
             command_path=${tmp_path}
             command+=' '
             tmp_path+='_'
-            _BASHOP_COMMAND+=(${param})
+            _BASHOP_COMMAND+=( ${param} )
           fi
         fi
       done
+
+      readonly _BASHOP_COMMAND
 
       if ! [[ -n ${command_path} ]]; then
         bashop::logger::error "The command '${command}' does not exists"

@@ -1,32 +1,16 @@
 #!/usr/bin/env bash
 
-bashop::command::__check_dependencies() {
-  if ! [[ -n ${BASHOP_COMMAND_ARGUMENTS+1} ]]; then
-    bashop::logger::framework_error "The global variable 'BASHOP_COMMAND_ARGUMENTS' must be defined"
-    exit 1
-  fi
-
-  local com_options=( ${!BASHOP_COMMAND_OPTIONS[@]} )
-
-  if [[ ${#com_options[@]} -le 0 ]]; then
-    bashop::logger::framework_error "The global variable 'BASHOP_COMMAND_OPTIONS' must be defined"
-    exit 1
-  fi
-}
-
 bashop::command::show_help() {
-  bashop::command::__check_dependencies
+  echo "Help"
 }
 
 bashop::command::parse_arguments() {
-  bashop::command::__check_dependencies
-
-  #TODO make local and store later global as read only
+  #Declare global argument array
   declare -g -A args=()
 
   #Get function agruments
-  local command_arguments=("${!1}")
-  local command_options=("${!2}")
+  local raw_command_arguments=("${!1}")
+  local raw_command_options=("${!2}")
   local raw_arguments=("${!3}")
 
   #Regex for options
@@ -36,6 +20,9 @@ bashop::command::parse_arguments() {
   long_option_regex+='(=([\<][a-z]+[\>])| ([A-Z]+)){0,1}'
 
   #---- Command arguments ----
+  local com_args_repeatable=false
+  local com_args_required=()
+  local com_args=()
 
   #Command regex
   local command_arg_regex='(([\<][a-zA-Z0-9]+[\>])([.]{3}){0,1})'
@@ -43,13 +30,25 @@ bashop::command::parse_arguments() {
   local commmand_arg_optional_regex="^\[${command_arg_regex}\]$"
 
   #Get command arguments
-  for command_argument in ${command_arguments[@]}; do
-    if [[ ${command_argument} =~ ${commmand_arg_requried_regex} ]]; then
-      echo "Requried: ${command_argument}"
-    elif [[ ${command_argument} =~ ${commmand_arg_optional_regex} ]]; then
-      echo "Optional: ${command_argument}"
+  for command_argument in ${raw_command_arguments[@]}; do
+    if [[ ${command_argument} =~ ${commmand_arg_requried_regex} ]] || [[ ${command_argument} =~ ${commmand_arg_optional_regex} ]]; then
+      local com_arg_name=${BASH_REMATCH[2]}
+      local com_arg_rep=${BASH_REMATCH[3]}
+
+      if [[ ${command_argument} =~ ${commmand_arg_requried_regex} ]]; then
+        com_args_required+=( ${com_arg_name} )
+      fi
+
+      com_args+=( ${com_arg_name} )
+
+      if [[ ${com_args_repeatable} == false ]] && [[ -n "${com_arg_rep}" ]]; then
+        com_args_repeatable=true
+      elif [[ ${com_args_repeatable} == true ]]; then
+        bashop::logger::framework_error "Only the last argument can be repeatable, but you have defined '${raw_command_arguments[@]}'."
+        exit 1
+      fi
     elif [[ ${command_argument} =~ ${short_option_regex} ]] || [[ ${command_argument} =~ ${long_option_regex} ]]; then
-      command_options+=( ${command_argument} )
+      raw_command_options+=( ${command_argument} )
     fi
   done
 
@@ -71,7 +70,7 @@ bashop::command::parse_arguments() {
   #Check for default value
   option_regex+='([^\[]*)(\[default: ([a-zA-Z0-9]+)\]){0,1}.*$'
 
-  for opt in "${command_options[@]}"; do
+  for opt in "${raw_command_options[@]}"; do
     # Check if option is valid
     if ! [[ ${opt} =~ ${option_regex} ]]; then
       bashop::logger::framework_error "Wrong pattern for option '${opt}'."
@@ -165,16 +164,16 @@ bashop::command::parse_arguments() {
 
   #---- Parese arguments ----
 
-  # Iterate over the raw argumgents
   local no_commands=${#_BASHOP_COMMAND[@]}
-  local no_command_arguments=${#BASHOP_COMMAND_ARGUMENTS[@]}
-  local start_options=$((no_commands + no_command_arguments))
+  local no_com_args=${#com_args[@]}
   local no_raw_arguments=${#raw_arguments[@]}
   local arg=''
   local current_arg=''
+  local com_arg_counter=0
   local counter=0
   local req_param_name=''
 
+  # Iterate over the raw argumgents
   while [[ ${counter} -lt ${no_raw_arguments} ]]; do
     arg=${raw_arguments[${counter}]}
 
@@ -183,33 +182,28 @@ bashop::command::parse_arguments() {
         bashop::logger::framework_error "Unknown command '${arg}' called"
         exit 1
       fi
-    elif [[ ${counter} -lt ${start_options} ]] && [[ ${counter} -ge ${no_commands} ]] && !(bashop::utils::is_option ${arg}); then
-      req_param_name=${BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
-      args[${req_param_name}]=${arg}
-    elif [[ ${counter} -ge ${start_options} ]] && (bashop::utils::is_option ${arg}); then
+    elif (bashop::utils::is_option ${arg}); then
+      #Check for valid option
       if (bashop::utils::key_exists ${arg} opt_map); then
         arg=${opt_map[${arg}]}
       else
-        bashop::logger::error "Invalid option '${arg}'"
+        bashop::logger::error "Unkown option '${arg}'"
         exit 1
       fi
 
-      current_arg=${arg}
-      local is_multiple_opt=false
+      local current_arg=${arg}
 
-      if [[ ${opt_repeatable[${current_arg}]} ]]; then
-        is_multiple_opt=true
-      fi
-
-      if ${is_multiple_opt} && !(bashop::utils::key_exists "${current_arg},#" args); then
+      #Set multiple args
+      if [[ ${opt_repeatable[${current_arg}]} == true ]] && !(bashop::utils::key_exists "${current_arg},#" args); then
         args["${current_arg},#"]=0
-      elif !(${is_multiple_opt}) && !(bashop::utils::key_exists ${current_arg} args); then
+      elif [[ ${opt_repeatable[${current_arg}]} == false ]] && !(bashop::utils::key_exists ${current_arg} args); then
         args[${current_arg}]=''
-      elif (bashop::utils::key_exists ${current_arg} args) && [[ ${is_multiple_opt} ]]; then
+      elif (bashop::utils::key_exists ${current_arg} args) && [[ ${opt_repeatable[${current_arg}]} == false ]]; then
         bashop::logger::error "'${current_arg}' can't be multiple definied"
         exit 1
       fi
 
+      #Check if accept arguments and grep them
       if (bashop::utils::key_exists "${current_arg}" opt_default_arg); then
         local opt_argument=false
         local next=$((counter + 1))
@@ -223,12 +217,14 @@ bashop::command::parse_arguments() {
           fi
         fi
 
+        #Get argument
         if [[ ${opt_argument} == false ]] && [[ ${opt_default_arg["${current_arg}"]} != false ]]; then
           opt_argument=${opt_default_arg["${current_arg}"]}
         fi
 
+        #Set default value if no is given or show error
         if [[ ${opt_argument} != false ]]; then
-          if ${is_multiple_opt}; then
+          if [[ ${opt_repeatable[${current_arg}]} == true ]]; then
             local no_opt_args=${args["${current_arg},#"]}
             args["${current_arg},${no_opt_args}"]="${opt_argument}"
             args["${current_arg},#"]=$((no_opt_args+1))
@@ -240,19 +236,26 @@ bashop::command::parse_arguments() {
           exit 1
         fi
       fi
+    elif [[ ${com_arg_counter} -lt ${no_com_args} ]];then
+      local req_param_name=${com_args[${com_arg_counter}]}
+      args[${req_param_name}]=${arg}
+      com_arg_counter=$((com_arg_counter + 1))
     else
-      if [[ ${counter} -lt ${no_commands} ]]; then
-        bashop::logger::error "Invalide command '${arg}'"
-      elif [[ ${counter} -lt ${start_options} ]]; then
-        req_param_name=${BASHOP_COMMAND_ARGUMENTS[$((counter - no_commands))]}
-        bashop::logger::error "Missing required parameter '${req_param_name}'"
-      elif [[ ${counter} -ge ${start_options} ]]; then
-        bashop::logger::error "Unknown option '${arg}'"
-      fi
-
+      bashop::logger::error "Unknow argument '${arg}'"
       exit 1
     fi
 
     counter=$((counter + 1))
   done
+
+  #Check if all requried args are set
+  for com_arg_req in ${com_args_required[@]}; do
+    if !(bashop::utils::key_exists ${com_arg_req} args); then
+      bashop::logger::error "Missing required command argument '${com_arg_req}'"
+      exit 1
+    fi
+  done
+
+  #Everything done now set the args to read only
+  readonly args
 }

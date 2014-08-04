@@ -42,8 +42,10 @@ bashop::logger::error() {
 
 bashop::logger::framework_error() {
   local msg=''
-  msg+="It's not your fault... expect you are the developer of this application. If you are a user "
-  msg+="please send the developer the following message as error report:\n${1}"
+  msg+="It's not your fault... expect you are the developer of this application or worse "
+  msg+="you are the user and changed something, than congratulations you broke it ;). "
+  msg+="If you are a user and you didn't done something then please send the developer "
+  msg+="of this application the following message as error report:\n\nFRAMEWORK ERROR: ${1}"
 
   printf "\033[00;31m"
   bashop::logger::echo "${msg}" "${@:2}"

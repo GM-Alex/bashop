@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+#?d The example command
 #?c --test -z <name> <version> [<extra>...]
 #?o -v
 #?o --option  An optional option.
@@ -13,27 +14,11 @@
 
 BASHOP_COMMAND_DESCRIPTION="The example command"
 
-BASHOP_COMMAND_ARGUMENTS=(
-  "name"
-  "version"
-)
-
-declare -g -A BASHOP_COMMAND_OPTIONS=(
-  ["single-required:"]="A required option"
-  ["single-optional?"]="An optional option"
-  ["single-repeatable+"]="A repeatable option"
-  ["r|required-opt:"]="A required option with shortcut"
-  ["o|optional-opt?"]="An optional option with shortcut"
-  ["p|repeatable-opt+=<arg>"]="A repeatable option with shortcut"
-  ["a|optional-argument-opt?=<arg:test>"]="A required option with optional argument"
-  ["b|required-argument-opt?=<arg>"]="A required option with requrired argument"
-)
-
 bashop::run_command() {
   echo "---- Args -----"
 
   for key in "${!args[@]}"; do
-    k=$(echo ${key} | grep -o '[a-z0-9\-]*')
+    k=$(echo ${key} | grep -o '[a-z0-9\<\>\-]*')
 
 
     if [[ $(echo ${key} | grep -o '[\#]*') == "#" ]] && (bashop::utils::key_exists "${k},#" args); then
