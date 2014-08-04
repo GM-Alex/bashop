@@ -13,9 +13,9 @@ declare -g -A BASHOP_COMMAND_OPTIONS=(
   ["sub-single-repeatable+"]="A repeatable option"
   ["r|sub-required-opt:"]="A required option with shortcut"
   ["o|sub-optional-opt?"]="An optional option with shortcut"
-  ["p|sub-repeatable-opt+="]="A repeatable option with shortcut"
-  ["a|sub-optional-argument-opt?=test"]="A required option with optional argument"
-  ["b|sub-required-argument-opt?="]="A required option with requrired argument"
+  ["p|sub-repeatable-opt+=<arg>"]="A repeatable option with shortcut"
+  ["a|sub-optional-argument-opt?=<arg:test>"]="A required option with optional argument"
+  ["b|sub-required-argument-opt?=<arg>"]="A required option with requrired argument"
 )
 
 bashop::run_command() {

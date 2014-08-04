@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+#?c --test -z <name> <version> [<extra>...]
+#?o -v
+#?o --option  An optional option.
+#?o --repeatable...  A repeatable option.
+#?o -o, --optional-opt  An optional option with shortcut.
+#?o -r..., --repeatable-opt...  A repeatable option with shortcut.
+#?o -a ARG, --argument-opt=<arg>  A required option with optional argument [default: test].
+#?o -b... <arg>, --repeatable-argument-opt...=<arg>  A required option with requrired argument.
+#?o -c... SARG --output...=<arg>  Aaaa [default: test].
+#?o -d <sarg> --dee LARG  Aaaa [default: test].
+
 BASHOP_COMMAND_DESCRIPTION="The example command"
 
 BASHOP_COMMAND_ARGUMENTS=(
@@ -13,9 +24,9 @@ declare -g -A BASHOP_COMMAND_OPTIONS=(
   ["single-repeatable+"]="A repeatable option"
   ["r|required-opt:"]="A required option with shortcut"
   ["o|optional-opt?"]="An optional option with shortcut"
-  ["p|repeatable-opt+="]="A repeatable option with shortcut"
-  ["a|optional-argument-opt?=test"]="A required option with optional argument"
-  ["b|required-argument-opt?="]="A required option with requrired argument"
+  ["p|repeatable-opt+=<arg>"]="A repeatable option with shortcut"
+  ["a|optional-argument-opt?=<arg:test>"]="A required option with optional argument"
+  ["b|required-argument-opt?=<arg>"]="A required option with requrired argument"
 )
 
 bashop::run_command() {
@@ -25,7 +36,7 @@ bashop::run_command() {
     k=$(echo ${key} | grep -o '[a-z0-9\-]*')
 
 
-    if [[ $(echo ${key} | grep -o '[\#]*') == "#" ]] && (bashop::key_exists "${k},#" args); then
+    if [[ $(echo ${key} | grep -o '[\#]*') == "#" ]] && (bashop::utils::key_exists "${k},#" args); then
       echo "|> ${k}"
 
       i=0
