@@ -1,42 +1,9 @@
 #!/usr/bin/env bash
 
-BASHOP_COMMAND_DESCRIPTION="The example sub command"
-
-BASHOP_COMMAND_ARGUMENTS=(
-  "sub-name"
-  "sub-version"
-)
-
-declare -g -A BASHOP_COMMAND_OPTIONS=(
-  ["sub-single-required:"]="A required option"
-  ["sub-single-optional?"]="An optional option"
-  ["sub-single-repeatable+"]="A repeatable option"
-  ["r|sub-required-opt:"]="A required option with shortcut"
-  ["o|sub-optional-opt?"]="An optional option with shortcut"
-  ["p|sub-repeatable-opt+=<arg>"]="A repeatable option with shortcut"
-  ["a|sub-optional-argument-opt?=<arg:test>"]="A required option with optional argument"
-  ["b|sub-required-argument-opt?=<arg>"]="A required option with requrired argument"
-)
+#?d A command with one option
+#?o -v arg>  Description
 
 bashop::run_command() {
-  echo "---- Args -----"
-
-  for key in "${!args[@]}"; do
-    k=$(echo ${key} | grep -o '[a-z0-9\-]*')
-
-
-    if [[ $(echo ${key} | grep -o '[\#]*') == "#" ]] && (bashop::key_exists "${k},#" args); then
-      echo "|> ${k}"
-
-      i=0
-      while [[ ${i} -lt ${args["${k},#"]} ]] ; do
-        echo "|==> ${args[${k},${i}]}"
-        i=$[${i}+1]
-      done
-    elif [[ -z $(echo ${key} | grep -o '[\,]*') ]]; then
-      echo "|> ${k}"
-      echo "|==> ${args[${k}]}"
-    fi
-  done
+  bashop::logger::info "Command without args"
 }
 

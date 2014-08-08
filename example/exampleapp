@@ -7,6 +7,4 @@ bashop::destroy() {
   bashop::logger::info "destroy: ${BASHOP_ROOT}";
 }
 
-readonly BASHOP_APP_NAME='exampleapp'
-
 source "../src/bashop/bootstrap.sh"

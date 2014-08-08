@@ -2,7 +2,7 @@
 
 #?d The example command
 #?c --test -z <name> <version> [<extra>...]
-#?o -v
+#?o -v  Test
 #?o --option  An optional option.
 #?o --repeatable...  A repeatable option.
 #?o -o, --optional-opt  An optional option with shortcut.

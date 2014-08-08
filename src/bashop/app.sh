@@ -1,43 +1,46 @@
 #!/usr/bin/env bash
 
-bashop::app::__check_dependencies() {
-  if ! [[ -n ${BASHOP_APP_NAME+1} ]]; then
-    bashop::logger::framework_error "The global variable 'BASHOP_APP_NAME' must be defined"
-    exit 1
-  fi
-}
-
 bashop::app::show_help() {
-  bashop::logger::info "Usage:"
-  bashop::logger::info "  ${BASHOP_APP_NAME} <command> <arguments> [options]\n"
-  bashop::logger::info "Commands:"
+  # Print app usage
+  local app_name="${1}"
+  bashop::logger::echo "Usage:"
+  bashop::logger::echo "  ${app_name} <command> <arguments> [options]" "\n\n"
+  bashop::logger::echo "Commands:"
 
-  local commands=( "${BASHOP_APP_COMMAND_ROOT}/help" "${BASHOP_APP_COMMAND_ROOT}/*" )
-  local max_length=$(bashop::utils::max_string_lenght ${commands[@]})
-  BASHOP_COMMAND_DESCRIPTION='show this help'
+  # Grep commands and show help page
+  local commands=( "${BASHOP_APP_COMMAND_ROOT}/*" )
+  local commands_to_show=()
+  local command
 
   for command in ${commands[@]}; do
-    if ! [[ ${command} =~ \/help$ ]]; then
-      source ${command}
-    fi
+    source ${command}
+    local command_name=$([[ ${command} =~ ([^\/]+)$ ]] && echo "${BASH_REMATCH[1]}")
+    local command_description=''
 
-    local single_command=$([[ ${command} =~ ([^\/]+)$ ]] && echo "${BASH_REMATCH[1]}")
-    local length=${#command}
-    local no_spaces=$((max_length - length))
-    spaces=$(bashop::utils::string_repeat ' ' ${no_spaces})
+    while read line; do
+      if [[ ${line} =~ ^#\?d([ ]*)(.*)$ ]]; then
+        command_description+="${BASH_REMATCH[2]}"
+      fi
+    done < "${command}"
 
-    bashop::logger::info "  ${single_command//_/ }${spaces}  " false
-    bashop::logger::info "${BASHOP_COMMAND_DESCRIPTION}"
+    commands_to_show+=( "${command_name//_/ }  ${command_description}" )
   done
+
+  bashop::logger::help_formater commands_to_show[@]
+
+  #TODO add global options
 }
 
 bashop::app::start() {
+  # Run app init function
   if (bashop::utils::function_exists "bashop::init"); then
     bashop::init
   fi
 
+  # Get app name
+  local app_name=$([[ ${0} =~ ([^\/]+)$ ]] && echo "${BASH_REMATCH[1]}")
+
   # Execute command
-  _BASHOP_COMMAND=()
   local first_command=''
 
   if [[ -n ${1+1} ]]; then
@@ -46,36 +49,38 @@ bashop::app::start() {
 
   case "${first_command}" in
     "" | "-h" | "--help" )
-      bashop::app::show_help
+      bashop::app::show_help ${app_name}
       ;;
     * )
-      local command=''
+      # Check if we have a valid command
+      local possible_command=()
+      local command=()
       local command_path=''
       local tmp_path="${BASHOP_APP_COMMAND_ROOT}/"
+      local param
 
       for param in ${@}; do
         if !(bashop::utils::is_option ${param}); then
-          command+=${param}
           tmp_path+=${param}
+          possible_command+=( ${param} )
 
           if [[ -f "${tmp_path}" ]]; then
             command_path=${tmp_path}
-            command+=' '
             tmp_path+='_'
-            _BASHOP_COMMAND+=( ${param} )
+            command+=( ${param} )
           fi
         fi
       done
 
-      readonly _BASHOP_COMMAND
-
       if ! [[ -n ${command_path} ]]; then
-        bashop::logger::error "The command '${command}' does not exists"
+        bashop::logger::error "The command '${possible_command[@]}' does not exists"
         exit 1
       fi
 
+      # Grep options and arguments form the command file
       local command_arguments=()
       local command_options=()
+      local line
 
       while read line; do
         if [[ ${line} =~ ^#\?c([ ]*)(.*)$ ]]; then
@@ -87,16 +92,32 @@ bashop::app::start() {
 
       source "${command_path}"
       local raw_arguments=("${@}")
-      bashop::command::parse_arguments command_arguments[@] command_options[@] raw_arguments[@]
 
-      if (bashop::utils::function_exists "bashop::run_command"); then
-        bashop::run_command
+      # Check if arguments given
+      local no_command=${#command[@]}
+      local no_args=${#raw_arguments[@]}
+      local diff=$((no_args - no_command))
+
+      # If no arguments given and the command needs arguments show the help page
+      if ( [[ ${#command_arguments[@]} -gt 0 ]] || [[ ${#command_options[@]} -gt 0 ]] ) && [[ ${diff} -lt 1 ]] ||
+         (bashop::utils::contains_element '-h' ${raw_arguments[@]}) ||
+         (bashop::utils::contains_element '--help' ${raw_arguments[@]})
+      then
+        local command_with_app_name=( "${app_name}" "${command[@]}" )
+        bashop::command::show_help command_with_app_name[@] command_arguments[@] command_options[@]
       else
-        bashop::logger::framework_error "Every command must define the function bashop::run_command"
+        bashop::command::parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@]
+
+        if (bashop::utils::function_exists "bashop::run_command"); then
+          bashop::run_command
+        else
+          bashop::logger::framework_error "Every command must define the function bashop::run_command"
+        fi
       fi
       ;;
   esac
 
+  # Run app destroy function
   if (bashop::utils::function_exists "bashop::destroy"); then
     bashop::destroy
   fi
