@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+##########################################
+# Shows the command help page
+# Globals:
+#   array args
+# Arguments:
+#   array raw_command
+#   array raw_command_arguments (optional)
+#   array raw_command_options (optional)
+# Returns:
+#   None
+##########################################
 bashop::command::show_help() {
   # Check which arguments given and not empty
   local raw_command=("${!1}")
@@ -42,6 +53,18 @@ bashop::command::show_help() {
   fi
 }
 
+##########################################
+# Parses and validates the given argument
+# Globals:
+#   array args
+# Arguments:
+#   array raw_command
+#   array raw_command_arguments
+#   array raw_command_options
+#   array raw_arguments
+# Returns:
+#   None
+##########################################
 bashop::command::parse_arguments() {
   # Declare global argument array
   declare -g -A args=()

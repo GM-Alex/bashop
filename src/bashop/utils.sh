@@ -5,7 +5,7 @@
 # Globals:
 #   None
 # Arguments:
-#   None
+#   mixed variable
 # Returns:
 #   Bool
 ##############################
@@ -22,7 +22,8 @@ bashop::utils::isset() {
 # Globals:
 #   None
 # Arguments:
-#   None
+#   string needle
+#   array  hackstay
 # Returns:
 #   Bool
 ###############################################
@@ -41,7 +42,8 @@ bashop::utils::contains_element() {
 # Globals:
 #   None
 # Arguments:
-#   None
+#   string needle
+#   array  hackstay
 # Returns:
 #   Bool
 #####################################################
@@ -49,6 +51,15 @@ bashop::utils::key_exists() {
   eval '[ ${'${2}'[${1}]+key_exists} ]'
 }
 
+#######################################################
+# Checks if the given string matches the option format
+# Globals:
+#   None
+# Arguments:
+#   string option
+# Returns:
+#   Bool
+#######################################################
 bashop::utils::is_option() {
   if [[ ${1} =~ ^-{1,2}.* ]]; then
     return 0
@@ -57,32 +68,88 @@ bashop::utils::is_option() {
   return 1
 }
 
+####################################################################
+# Checks if the given var is an associative array which is declared
+# Globals:
+#   None
+# Arguments:
+#   string array_name
+# Returns:
+#   Bool
+####################################################################
 bashop::utils::associative_array_exists() {
   declare -g -A ${1} > /dev/null
   return $?
 }
 
+######################################
+# Checks if the given function exists
+# Globals:
+#   None
+# Arguments:
+#   string function_name
+# Returns:
+#   Bool
+######################################
 bashop::utils::function_exists() {
   declare -f -F ${1} > /dev/null
   return $?
 }
 
+##################################
+# Repeat the given string n times
+# Globals:
+#   None
+# Arguments:
+#   string string_to_repeat
+#   int    repeat_times
+# Returns:
+#   string
+##################################
 bashop::utils::string_repeat() {
   if [[ ${2} -gt 0 ]]; then
     printf "${1}%.0s" $(eval "echo {1.."$(($2))"}")
   fi
 }
 
+#################################################################
+# Finds the min length of a collection of strings given by array
+# Globals:
+#   None
+# Arguments:
+#   array search
+# Returns:
+#   int
+#################################################################
 bashop::utils::min_string_lenght() {
-  local raw_args=("${!1}")
-  echo $(bashop::utils::string_length raw_args[@] "min")
+  local search=("${!1}")
+  echo $(bashop::utils::string_length search[@] "min")
 }
 
+#################################################################
+# Finds the max length of a collection of strings given by array
+# Globals:
+#   None
+# Arguments:
+#   array search
+# Returns:
+#   int
+#################################################################
 bashop::utils::max_string_lenght() {
-  local raw_args=("${!1}")
-  echo $(bashop::utils::string_length raw_args[@] "max")
+  local search=("${!1}")
+  echo $(bashop::utils::string_length search[@] "max")
 }
 
+#############################################################
+# Finds the length of a collection of strings given by array
+# Globals:
+#   None
+# Arguments:
+#   array  search
+#   string type   Possible values are be min, max or diff
+# Returns:
+#   int
+#############################################################
 bashop::utils::string_length() {
   local strings=("${!1}")
   local min_length=false
@@ -99,11 +166,13 @@ bashop::utils::string_length() {
     fi
   done
 
-  if [[ ${2} == 'min' ]]; then
+  local type=${2}
+
+  if [[ ${type} == 'min' ]]; then
     echo ${min_length}
-  elif [[ ${2} == 'max' ]]; then
+  elif [[ ${type} == 'max' ]]; then
     echo ${max_length}
-  elif [[ ${2} == 'diff' ]]; then
+  elif [[ ${type} == 'diff' ]]; then
     echo $((max_length - min_length))
   fi
 }

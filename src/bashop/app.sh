@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+##################################
+# Shows the application help page
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##################################
 bashop::app::show_help() {
   # Print app usage
   local app_name="${1}"
@@ -31,6 +40,15 @@ bashop::app::show_help() {
   #TODO add global options
 }
 
+#########################
+# Starts the application
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#########################
 bashop::app::start() {
   # Run app init function
   if (bashop::utils::function_exists "bashop::init"); then
@@ -122,5 +140,3 @@ bashop::app::start() {
     bashop::destroy
   fi
 }
-
-bashop::app::__check_dependencies
