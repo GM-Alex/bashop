@@ -61,7 +61,7 @@ bashop::utils::key_exists() {
 #   Bool
 #######################################################
 bashop::utils::is_option() {
-  if [[ ${1} =~ ^-{1,2}.* ]]; then
+  if [[ ${1} =~ ^-{1,2}[^-].* ]]; then
     return 0
   fi
 
@@ -121,7 +121,7 @@ bashop::utils::string_repeat() {
 # Returns:
 #   int
 #################################################################
-bashop::utils::min_string_lenght() {
+bashop::utils::min_string_length() {
   local search=("${!1}")
   echo $(bashop::utils::string_length search[@] "min")
 }
@@ -135,7 +135,7 @@ bashop::utils::min_string_lenght() {
 # Returns:
 #   int
 #################################################################
-bashop::utils::max_string_lenght() {
+bashop::utils::max_string_length() {
   local search=("${!1}")
   echo $(bashop::utils::string_length search[@] "max")
 }
@@ -175,4 +175,49 @@ bashop::utils::string_length() {
   elif [[ ${type} == 'diff' ]]; then
     echo $((max_length - min_length))
   fi
+}
+
+##########################################################
+# Checks if the min version is lower than the cur version
+# Globals:
+#   None
+# Arguments:
+#   string min_version
+#   string cur_version
+# Returns:
+#   bool
+##########################################################
+bashop::utils::check_version() {
+  local min_version=${1}
+  local mv=()
+  local cur_version=${2}
+  local cv=()
+  local version_regex="^([0-9]+)\.([0-9]+)\.([0-9]+).*"
+
+  if [[ ${min_version} =~ ${version_regex} ]]; then
+    mv+=( ${BASH_REMATCH[1]} )
+    mv+=( ${BASH_REMATCH[2]} )
+    mv+=( ${BASH_REMATCH[3]} )
+  else
+    bashop::logger::error "Wrong version format for '${min_version}'."
+    exit 1
+  fi
+
+  if [[ ${cur_version} =~ ${version_regex} ]]; then
+    cv+=( ${BASH_REMATCH[1]} )
+    cv+=( ${BASH_REMATCH[2]} )
+    cv+=( ${BASH_REMATCH[3]} )
+  else
+    bashop::logger::error "Wrong version format for '${cur_version}'."
+    exit 1
+  fi
+
+  if ( [[ ${mv[0]} -lt ${cv[0]} ]] ) ||
+     ( [[ ${mv[0]} -le ${cv[0]} ]] && [[ ${mv[1]} -lt ${cv[1]} ]] ) ||
+     ( [[ ${mv[0]} -le ${cv[0]} ]] && [[ ${mv[1]} -le ${cv[1]} ]] && [[ ${mv[2]} -lt ${cv[2]} ]] )
+  then
+    return 0
+  fi
+
+  return 1
 }

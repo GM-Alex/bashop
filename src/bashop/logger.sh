@@ -148,7 +148,7 @@ bashop::logger::help_formater() {
     fi
   done
 
-  local max_length=$(bashop::utils::max_string_lenght help_text_first_parts[@])
+  local max_length=$(bashop::utils::max_string_length help_text_first_parts[@])
 
   for help_text in "${help_texts[@]}"; do
     if [[ ${help_text} =~ ${help_regex} ]]; then

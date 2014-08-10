@@ -28,7 +28,8 @@ readonly BASHOP_APP_COMMAND_ROOT="${BASHOP_APP_ROOT}/commands"
 # Include files
 source "${BASHOP_ROOT}/utils.sh"
 source "${BASHOP_ROOT}/logger.sh"
-source "${BASHOP_ROOT}/command.sh"
+source "${BASHOP_ROOT}/bashop.sh"
 source "${BASHOP_ROOT}/app.sh"
+source "${BASHOP_ROOT}/command.sh"
 
-bashop::app::start "${@}"
+bashop::start "${@}"
