@@ -66,8 +66,6 @@ bashop::command::show_help() {
 #   None
 ##########################################
 bashop::command::parse_arguments() {
-  #TODO add --
-
   # Declare global argument array
   declare -g -A args=()
 
@@ -242,6 +240,7 @@ bashop::command::parse_arguments() {
   local com_arg_counter=0
   local counter=0
   local req_param_name=''
+  local double_dash=false
 
   # Iterate over the raw argumgents
   while [[ ${counter} -lt ${no_raw_arguments} ]]; do
@@ -252,6 +251,12 @@ bashop::command::parse_arguments() {
         bashop::printer::framework_error "Unknown command '${arg}' called"
         exit 1
       fi
+    elif [[ ${arg} == '--' ]]; then
+      double_dash=true
+      args[${arg}]=''
+    elif [[ ${double_dash} == true ]]; then
+      args["--"]+=${arg}
+      args["--"]+=' '
     elif (bashop::utils::is_option ${arg}); then
       # Check for valid option
       if (bashop::utils::key_exists ${arg} opt_map); then
