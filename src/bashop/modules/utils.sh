@@ -68,20 +68,6 @@ bashop::utils::is_option() {
   return 1
 }
 
-####################################################################
-# Checks if the given var is an associative array which is declared
-# Globals:
-#   None
-# Arguments:
-#   string array_name
-# Returns:
-#   Bool
-####################################################################
-bashop::utils::associative_array_exists() {
-  declare -g -A ${1} > /dev/null
-  return $?
-}
-
 ######################################
 # Checks if the given function exists
 # Globals:
@@ -199,7 +185,7 @@ bashop::utils::check_version() {
     mv+=( ${BASH_REMATCH[2]} )
     mv+=( ${BASH_REMATCH[3]} )
   else
-    bashop::logger::error "Wrong version format for '${min_version}'."
+    bashop::printer::error "Wrong version format for '${min_version}'."
     exit 1
   fi
 
@@ -208,7 +194,7 @@ bashop::utils::check_version() {
     cv+=( ${BASH_REMATCH[2]} )
     cv+=( ${BASH_REMATCH[3]} )
   else
-    bashop::logger::error "Wrong version format for '${cur_version}'."
+    bashop::printer::error "Wrong version format for '${cur_version}'."
     exit 1
   fi
 

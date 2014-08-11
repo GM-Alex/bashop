@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source ${DIR}/../src/bashop/utils.sh
-source ${DIR}/../src/bashop/logger.sh
+source ${DIR}/../src/bashop/modules/utils.sh
 
 function check_isset() {
   local set_var="set"
@@ -57,17 +56,6 @@ function check_is_option() {
   assertion__status_code_is_failure $?
 }
 
-function check_associative_array_exists() {
-  declare -A associative_array=()
-  associative_array["key1"]="value1"
-
-  (bashop::utils::associative_array_exists associative_array)
-  assertion__status_code_is_success $?
-
-  (bashop::utils::associative_array_exists not_existing_associative_array)
-  assertion__status_code_is_failure $?
-}
-
 function check_function_exists() {
   (bashop::utils::function_exists check_function_exists)
   assertion__status_code_is_success $?
@@ -98,6 +86,8 @@ function check_string_length() {
 }
 
 function check_check_version() {
+  mock__make_function_do_nothing "bashop::printer::error"
+
   (bashop::utils::check_version '1.2.3' '2.0.0')
   assertion__status_code_is_success $?
 

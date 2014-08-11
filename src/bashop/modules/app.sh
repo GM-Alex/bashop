@@ -12,9 +12,9 @@
 bashop::app::show_help() {
   # Print app usage
   local app_name="${1}"
-  bashop::logger::echo "Usage:"
-  bashop::logger::echo "  ${app_name} <command> <arguments> [options]" "\n\n"
-  bashop::logger::echo "Commands:"
+  bashop::printer::echo "Usage:"
+  bashop::printer::echo "  ${app_name} <command> [options] <arguments>" "\n\n"
+  bashop::printer::echo "Commands:"
 
   # Grep commands and show help page
   local commands=( "${BASHOP_APP_COMMAND_ROOT}/*" )
@@ -35,9 +35,11 @@ bashop::app::show_help() {
     commands_to_show+=( "${command_name//_/ }  ${command_description}" )
   done
 
-  bashop::logger::help_formater commands_to_show[@]
+  bashop::printer::help_formater commands_to_show[@]
 
-  #TODO add global options
+  bashop::printer::echo "" "\n"
+  bashop::printer::echo "Options:"
+  bashop::printer::help_formater _BASHOP_BUILD_IN_OPTIONS[@]
 }
 
 #########################
@@ -91,7 +93,7 @@ bashop::app::start() {
       done
 
       if ! [[ -n ${command_path} ]]; then
-        bashop::logger::error "The command '${possible_command[@]}' does not exists"
+        bashop::printer::error "The command '${possible_command[@]}' does not exists"
         exit 1
       fi
 
@@ -129,7 +131,7 @@ bashop::app::start() {
         if (bashop::utils::function_exists "bashop::run_command"); then
           bashop::run_command
         else
-          bashop::logger::framework_error "Every command must define the function bashop::run_command"
+          bashop::printer::framework_error "Every command must define the function bashop::run_command"
         fi
       fi
       ;;

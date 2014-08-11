@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 bashop::init() {
-  bashop::logger::info "init: ${BASHOP_ROOT}";
+  bashop::printer::info "init: ${BASHOP_ROOT}";
 }
 
 bashop::destroy() {
-  bashop::logger::info "destroy: ${BASHOP_ROOT}";
+  bashop::printer::info "destroy: ${BASHOP_ROOT}";
 }
 
 source "../src/bashop/bootstrap.sh"

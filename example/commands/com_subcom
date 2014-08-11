@@ -4,6 +4,6 @@
 #?o -v arg>  Description
 
 bashop::run_command() {
-  bashop::logger::info "Command without args"
+  bashop::printer::info "Command without args"
 }
 

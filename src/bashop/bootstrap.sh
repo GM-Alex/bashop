@@ -25,11 +25,17 @@ readonly BASHOP_ROOT="$(bashop::abs_dirname "${BASH_SOURCE[0]}")"
 readonly BASHOP_APP_ROOT="$(bashop::abs_dirname "${0}")"
 readonly BASHOP_APP_COMMAND_ROOT="${BASHOP_APP_ROOT}/commands"
 
+# Set default options
+readonly _BASHOP_BUILD_IN_OPTIONS=(
+    "-h --help  Shows this help"
+    "-v --verbose  Shows more detailed information"
+)
+
 # Include files
-source "${BASHOP_ROOT}/utils.sh"
-source "${BASHOP_ROOT}/logger.sh"
-source "${BASHOP_ROOT}/bashop.sh"
-source "${BASHOP_ROOT}/app.sh"
-source "${BASHOP_ROOT}/command.sh"
+source "${BASHOP_ROOT}/modules/utils.sh"
+source "${BASHOP_ROOT}/modules/printer.sh"
+source "${BASHOP_ROOT}/modules/bashop.sh"
+source "${BASHOP_ROOT}/modules/app.sh"
+source "${BASHOP_ROOT}/modules/command.sh"
 
 bashop::start "${@}"

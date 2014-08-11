@@ -10,7 +10,7 @@
 # Returns:
 #   string
 ##########################################
-bashop::logger::echo() {
+bashop::printer::echo() {
   printf '%s' "${1}"
 
   if ! [[ -n ${2+1} ]]; then
@@ -30,9 +30,9 @@ bashop::logger::echo() {
 # Returns:
 #   string
 ######################
-bashop::logger::info() {
+bashop::printer::info() {
   printf "\033[00;34m"
-  bashop::logger::echo "Info: ${1}" "${@:2}"
+  bashop::printer::echo "Info: ${1}" "${@:2}"
   printf "\033[0m"
 }
 
@@ -46,9 +46,9 @@ bashop::logger::info() {
 # Returns:
 #   string
 ######################
-bashop::logger::user() {
-  printf "\033[0;33m"
-  bashop::logger::echo "${1}" "${@:2}"
+bashop::printer::user() {
+  printf "\033[00;33m"
+  bashop::printer::echo "${1}" "${@:2}"
   printf "\033[0m"
 }
 
@@ -62,9 +62,9 @@ bashop::logger::user() {
 # Returns:
 #   string
 #########################
-bashop::logger::success() {
+bashop::printer::success() {
   printf "\033[00;32m"
-  bashop::logger::echo "${1}" "${@:2}"
+  bashop::printer::echo "${1}" "${@:2}"
   printf "\033[0m"
 }
 
@@ -78,9 +78,9 @@ bashop::logger::success() {
 # Returns:
 #   string
 ########################################
-bashop::logger::error() {
+bashop::printer::error() {
   printf "\033[00;31m"
-  bashop::logger::echo "Error: ${1}" "${@:2}"
+  bashop::printer::echo "Error: ${1}" "${@:2}"
   printf "\033[0m"
 }
 
@@ -94,10 +94,10 @@ bashop::logger::error() {
 # Returns:
 #   string
 #########################
-bashop::logger::verbose() {
-  if [[ ${_BASHOP_VERBOSE} == true ]]; then
+bashop::printer::verbose() {
+  if [[ -n ${_BASHOP_VERBOSE+1} ]] && [[ ${_BASHOP_VERBOSE} == true ]]; then
     printf "\033[00;34m"
-    bashop::logger::echo "${1}" "${@:2}"
+    bashop::printer::echo "${1}" "${@:2}"
     printf "\033[0m"
   fi
 }
@@ -111,7 +111,7 @@ bashop::logger::verbose() {
 # Returns:
 #   string
 #################################
-bashop::logger::framework_error() {
+bashop::printer::framework_error() {
   local msg=${1}
   local full_msg=''
   full_msg+="It's not your fault... expect you are the developer of this application or worse "
@@ -133,7 +133,7 @@ bashop::logger::framework_error() {
 # Returns:
 #   string
 #################################
-bashop::logger::help_formater() {
+bashop::printer::help_formater() {
   local help_texts=("${!1}")
   local help_text
   local help_regex="(.*)  (.*)"
@@ -143,7 +143,7 @@ bashop::logger::help_formater() {
     if [[ ${help_text} =~ ${help_regex} ]]; then
       help_text_first_parts+=( "${BASH_REMATCH[1]}" )
     else
-      bashop::logger::framework_error "Wrong syntax for '${help_text}'. Must be 'WHAT  DESCRIPTION' (two spaces)"
+      bashop::printer::framework_error "Wrong syntax for '${help_text}'. Must be 'WHAT  DESCRIPTION' (two spaces)"
       exit 1
     fi
   done
@@ -156,8 +156,8 @@ bashop::logger::help_formater() {
       local no_spaces=$((max_length - length))
       spaces=$(bashop::utils::string_repeat ' ' ${no_spaces})
 
-      bashop::logger::echo "  ${BASH_REMATCH[1]}${spaces}  " false
-      bashop::logger::echo "${BASH_REMATCH[2]}"
+      bashop::printer::echo "  ${BASH_REMATCH[1]}${spaces}  " false
+      bashop::printer::echo "${BASH_REMATCH[2]}"
     fi
   done
 }
