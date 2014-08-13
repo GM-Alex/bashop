@@ -31,26 +31,21 @@ bashop::command::show_help() {
   local full_command=${raw_command[@]}
 
   bashop::printer::echo "Usage:"
-  bashop::printer::echo "  ${full_command[@]} " false
-
-  local no_options=${#raw_command_options[@]}
-
-  # If options are given print the option place holder
-  if [[ ${no_options} -gt 0 ]]; then
-    bashop::printer::echo "[options] " false
-  fi
+  bashop::printer::echo "  ${full_command[@]} [options] " false
 
   if [[ ${#raw_command_arguments[@]} -gt 0 ]]; then
     bashop::printer::echo "${raw_command_arguments[@]}" false
   fi
 
   bashop::printer::echo "" "\n\n"
+  bashop::printer::echo "Options:"
 
   # Print command options
-  if [[ ${no_options} -gt 0 ]]; then
-    bashop::printer::echo "Options:"
+  if [[ ${#raw_command_options[@]} -gt 0 ]]; then
     bashop::printer::help_formater raw_command_options[@]
   fi
+
+  bashop::printer::help_formater _BASHOP_BUILD_IN_OPTIONS[@]
 }
 
 ##########################################
@@ -78,7 +73,7 @@ bashop::command::parse_arguments() {
   # Regex for options
   local short_option_regex='(-[a-zA-Z]{1})([.]{3}){0,1}'
   short_option_regex+='( ([\<][a-z]+[\>])| ([A-Z]+)){0,1}'
-  local long_option_regex='(--[a-zA-Z0-9\-]+)([.]{3}){0,1}'
+  local long_option_regex='(--[a-zA-Z0-9][a-zA-Z0-9\-]+)([.]{3}){0,1}'
   long_option_regex+='(=([\<][a-z]+[\>])| ([A-Z]+)){0,1}'
 
 
@@ -204,15 +199,15 @@ bashop::command::parse_arguments() {
     elif [[ -n "${p_opts["short_opt_name"]}" ]]; then
       type_name='short'
       cur_opt=${p_opts["short_opt_name"]}
-      opt_map[${cur_opt}]=${cur_opt}
     elif [[ -n "${p_opts["long_opt_name"]}" ]]; then
       type_name='long'
       cur_opt=${p_opts["long_opt_name"]}
-      opt_map[${cur_opt}]=${cur_opt}
     else
       bashop::printer::framework_error "Wrong pattern for option '${opt}'."
       exit 1
     fi
+
+    opt_map[${cur_opt}]=${cur_opt}
 
     if [[ -n "${p_opts["${type_name}_opt_repeatable"]}" ]]; then
       opt_repeatable[${cur_opt}]=true
@@ -258,6 +253,13 @@ bashop::command::parse_arguments() {
       args["--"]+=${arg}
       args["--"]+=' '
     elif (bashop::utils::is_option ${arg}); then
+      local opt_argument=false
+
+      if [[ ${arg} =~ (--[a-zA-Z0-9][a-zA-Z0-9\-]+)=(.*) ]]; then
+        arg=${BASH_REMATCH[1]}
+        opt_argument=${BASH_REMATCH[2]}
+      fi
+
       # Check for valid option
       if (bashop::utils::key_exists ${arg} opt_map); then
         arg=${opt_map[${arg}]}
@@ -280,7 +282,6 @@ bashop::command::parse_arguments() {
 
       # Check if accept arguments and grep them
       if (bashop::utils::key_exists "${current_arg}" opt_default_arg); then
-        local opt_argument=false
         local next=$((counter + 1))
 
         if [[ ${next} -lt ${no_raw_arguments} ]]; then
