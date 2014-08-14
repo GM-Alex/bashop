@@ -2,15 +2,17 @@
 
 #?d The example command
 #?c --test -z <name> <version> [<extra>...]
-#?o -v  Test
+#?o -a  Test
+#?o -g --ver  Test
 #?o --option  An optional option.
 #?o --repeatable...  A repeatable option.
 #?o -o, --optional-opt  An optional option with shortcut.
 #?o -r..., --repeatable-opt...  A repeatable option with shortcut.
 #?o -a ARG, --argument-opt=<arg>  A required option with optional argument [default: test].
-#?o -b... <arg>, --repeatable-argument-opt...=<arg>  A required option with requrired argument.
+#?o -b... <arg>, --bbb...=<arg>  A required option with requrired argument.
 #?o -c... SARG --output...=<arg>  Aaaa [default: test].
 #?o -d <sarg> --dee LARG  Aaaa [default: test].
+#?o -e <sarg> --eee LARG  Aaaa.
 
 BASHOP_COMMAND_DESCRIPTION="The example command"
 
@@ -22,16 +24,25 @@ bashop::run_command() {
 
 
     if [[ $(echo ${key} | grep -o '[\#]*') == "#" ]] && (bashop::utils::key_exists "${k},#" args); then
-      echo "|> ${k}"
+      echo "|> ${k} R"
 
-      i=0
-      while [[ ${i} -lt ${args["${k},#"]} ]] ; do
-        echo "|==> ${args[${k},${i}]}"
-        i=$[${i}+1]
-      done
+      if [[ ${args["${k},#"]} -eq 0 ]]; then
+        echo "|==> NOT SET"
+      else
+        local i=0
+        while [[ ${i} -lt ${args["${k},#"]} ]] ; do
+          echo "|==> ${args[${k},${i}]}"
+          i=$[${i}+1]
+        done
+      fi
     elif [[ -z $(echo ${key} | grep -o '[\,]*') ]]; then
-      echo "|> ${k}"
-      echo "|==> ${args[${k}]}"
+      echo "|> ${k} S"
+
+      if [[ -n ${args[${k}]} ]]; then
+        echo "|==> ${args[${k}]}"
+      else
+        echo "|==> NOT SET"
+      fi
     fi
   done
 }

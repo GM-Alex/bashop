@@ -38,14 +38,17 @@ bashop::command::show_help() {
   fi
 
   bashop::printer::echo "" "\n\n"
-  bashop::printer::echo "Options:"
 
   # Print command options
+  bashop::printer::echo "Options:"
+
   if [[ ${#raw_command_options[@]} -gt 0 ]]; then
-    bashop::printer::help_formater raw_command_options[@]
+    raw_command_options=( "${raw_command_options[@]}" "${_BASHOP_BUILD_IN_OPTIONS[@]}" )
+  else
+    raw_command_options=( "${_BASHOP_BUILD_IN_OPTIONS[@]}" )
   fi
 
-  bashop::printer::help_formater _BASHOP_BUILD_IN_OPTIONS[@]
+  bashop::printer::help_formater raw_command_options[@]
 }
 
 ##########################################
@@ -117,9 +120,8 @@ bashop::command::parse_arguments() {
   # ---- Command options ----
 
   # Get definied options
-  local opt_map opt_repeatable opt_default_arg
+  local opt_map opt_default_arg
   declare -A opt_map=()
-  declare -A opt_repeatable=()
   declare -A opt_default_arg=()
 
   # Short option regex
@@ -207,19 +209,17 @@ bashop::command::parse_arguments() {
       exit 1
     fi
 
-    opt_map[${cur_opt}]=${cur_opt}
-
     if [[ -n "${p_opts["${type_name}_opt_repeatable"]}" ]]; then
-      opt_repeatable[${cur_opt}]=true
+      args["${cur_opt},#"]=0
     else
-      opt_repeatable[${cur_opt}]=false
+      args[${cur_opt}]=''
     fi
 
     if [[ -n "${p_opts["${type_name}_opt_arg"]}" ]]; then
       if [[ -n "${default_option_arg}" ]]; then
         opt_default_arg[${cur_opt}]=${default_option_arg}
       else
-        opt_default_arg[${cur_opt}]=false
+        opt_default_arg[${cur_opt}]=''
       fi
     fi
   done
@@ -263,21 +263,21 @@ bashop::command::parse_arguments() {
       # Check for valid option
       if (bashop::utils::key_exists ${arg} opt_map); then
         arg=${opt_map[${arg}]}
-      else
+      elif !(bashop::utils::key_exists ${arg} args); then
         bashop::printer::error "Unkown option '${arg}'"
         exit 1
       fi
 
       local current_arg=${arg}
 
-      # Set multiple args
-      if [[ ${opt_repeatable[${current_arg}]} == true ]] && !(bashop::utils::key_exists "${current_arg},#" args); then
-        args["${current_arg},#"]=0
-      elif [[ ${opt_repeatable[${current_arg}]} == false ]] && !(bashop::utils::key_exists ${current_arg} args); then
-        args[${current_arg}]=''
-      elif (bashop::utils::key_exists ${current_arg} args) && [[ ${opt_repeatable[${current_arg}]} == false ]]; then
-        bashop::printer::error "'${current_arg}' can't be multiple definied"
-        exit 1
+      # Check if arg is already set
+      if !(bashop::utils::key_exists "${current_arg},#" args); then
+        if [[ -n ${args["${current_arg}"]} ]]; then
+          bashop::printer::error "'${current_arg}' can't be multiple definied"
+          exit 1
+        else
+          args[${current_arg}]=true
+        fi
       fi
 
       # Check if accept arguments and grep them
@@ -299,8 +299,8 @@ bashop::command::parse_arguments() {
         fi
 
         # Set default value if no is given or show error
-        if [[ ${opt_argument} != false ]]; then
-          if [[ ${opt_repeatable[${current_arg}]} == true ]]; then
+        if [[ -n ${opt_argument} ]]; then
+          if (bashop::utils::key_exists "${current_arg},#" args); then
             local no_opt_args=${args["${current_arg},#"]}
             args["${current_arg},${no_opt_args}"]="${opt_argument}"
             args["${current_arg},#"]=$((no_opt_args+1))

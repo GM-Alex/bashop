@@ -118,6 +118,22 @@ bashop::app::start() {
       local no_args=${#raw_arguments[@]}
       local diff=$((no_args - no_command))
 
+      # Set verbose mode
+      if (bashop::utils::contains_element '-v' ${raw_arguments[@]}) ||
+         (bashop::utils::contains_element '--verbose' ${raw_arguments[@]})
+      then
+        _BASHOP_VERBOSE=true
+        local raw_arg
+        local raw_args_copy=( "${raw_arguments[@]}" )
+        raw_arguments=()
+
+        for raw_arg in ${raw_args_copy[@]}; do
+          if [[ ${raw_arg} != '-v' ]] && [[ ${raw_arg} != '--verbose' ]]; then
+            raw_arguments+=( ${raw_arg} )
+          fi
+        done
+      fi
+
       # If no arguments given and the command needs arguments show the help page
       if ( [[ ${#command_arguments[@]} -gt 0 ]] || [[ ${#command_options[@]} -gt 0 ]] ) && [[ ${diff} -lt 1 ]] ||
          (bashop::utils::contains_element '-h' ${raw_arguments[@]}) ||
