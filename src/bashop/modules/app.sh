@@ -9,7 +9,7 @@
 # Returns:
 #   None
 ##################################
-bashop::app::show_help() {
+bashop::app::__show_help() {
   # Print app usage
   local app_name="${1}"
   bashop::printer::echo "Usage:"
@@ -51,7 +51,7 @@ bashop::app::show_help() {
 # Returns:
 #   None
 #########################
-bashop::app::start() {
+bashop::app::__start() {
   # Run app init function
   if (bashop::utils::function_exists "bashop::init"); then
     bashop::init
@@ -69,7 +69,7 @@ bashop::app::start() {
 
   case "${first_command}" in
     "" | "-h" | "--help" )
-      bashop::app::show_help ${app_name}
+      bashop::app::__show_help ${app_name}
       ;;
     * )
       # Check if we have a valid command
@@ -140,14 +140,14 @@ bashop::app::start() {
          (bashop::utils::contains_element '--help' ${raw_arguments[@]})
       then
         local command_with_app_name=( "${app_name}" "${command[@]}" )
-        bashop::command::show_help command_with_app_name[@] command_arguments[@] command_options[@]
+        bashop::command::__show_help command_with_app_name[@] command_arguments[@] command_options[@]
       else
-        bashop::command::parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@]
+        bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@]
 
         if (bashop::utils::function_exists "bashop::run_command"); then
           bashop::run_command
         else
-          bashop::printer::framework_error "Every command must define the function bashop::run_command"
+          bashop::printer::__framework_error "Every command must define the function bashop::run_command"
         fi
       fi
       ;;

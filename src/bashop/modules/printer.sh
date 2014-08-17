@@ -111,7 +111,7 @@ bashop::printer::verbose() {
 # Returns:
 #   string
 #################################
-bashop::printer::framework_error() {
+bashop::printer::__framework_error() {
   local msg=${1}
   local full_msg=''
   full_msg+="It's not your fault... expect you are the developer of this application or worse "
@@ -143,7 +143,7 @@ bashop::printer::help_formater() {
     if [[ ${help_text} =~ ${help_regex} ]]; then
       help_text_first_parts+=( "${BASH_REMATCH[1]}" )
     else
-      bashop::printer::framework_error "Wrong syntax for '${help_text}'. Must be 'WHAT  DESCRIPTION' (two spaces)"
+      bashop::printer::__framework_error "Wrong syntax for '${help_text}'. Must be 'WHAT  DESCRIPTION' (two spaces)"
       exit 1
     fi
   done

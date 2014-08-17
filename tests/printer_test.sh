@@ -95,7 +95,7 @@ function check_verbose() {
 }
 
 function check_framework_error() {
-  local fnc_string=$(bashop::printer::framework_error "test")
+  local fnc_string=$(bashop::printer::__framework_error "test")
 
   assertion__string_contains "${fnc_string}" $'FRAMEWORK ERROR: test\n'
   assertion__string_contains "${fnc_string}" $'\033[00;31m'
@@ -103,8 +103,6 @@ function check_framework_error() {
 }
 
 function check_help_formater() {
-  mock__make_function_do_nothing "bashop::printer::framework_error"
-
   #Should be '  func   desc1\n  func2  desc2\n' but last '\n' will be removed from bash, so that should be also ok
   local test_string=''
   test_string+=$'  func   desc1\n'
@@ -121,6 +119,6 @@ function check_help_formater() {
 
   array+=( "wrongfunc wrong_desc" )
 
-  (bashop::printer::help_formater array[@])
-  assertion__status_code_is_failure $?
+  local fnc_string=$(bashop::printer::help_formater array[@])
+  assertion__string_contains "${fnc_string}" "FRAMEWORK ERROR: Wrong syntax"
 }

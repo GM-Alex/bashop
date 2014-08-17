@@ -5,8 +5,11 @@ source ${DIR}/../src/bashop/modules/utils.sh
 source ${DIR}/../src/bashop/modules/printer.sh
 source ${DIR}/../src/bashop/modules/app.sh
 
+function global_setup() {
+  BASHOP_APP_COMMAND_ROOT=${DIR}/../exampleapp/commands
+}
+
 function check_show_help() {
-  #TODO mock commands
   readonly _BASHOP_BUILD_IN_OPTIONS=(
     "-h --help  Shows this help"
     "-v --verbose  Shows more detailed information"
@@ -22,7 +25,7 @@ function check_show_help() {
   test_string+=$'  -h --help     Shows this help\n'
   test_string+=$'  -v --verbose  Shows more detailed information'
 
-  local func_string="$(bashop::app::show_help "testapp")"
+  local func_string="$(bashop::app::__show_help "testapp")"
 
   assertion__equal "${test_string}" "${func_string}"
 }
@@ -30,8 +33,4 @@ function check_show_help() {
 function check_start() {
   #TODO
   local func_string=''
-}
-
-function global_setup() {
-  BASHOP_APP_COMMAND_ROOT=${DIR}/../example/commands
 }

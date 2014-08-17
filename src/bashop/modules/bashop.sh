@@ -23,7 +23,7 @@ bashop::check_dependencies() {
 
 
 bashop::start() {
-  bashop::app::start "${@}"
+  bashop::app::__start "${@}"
 }
 
 bashop::check_dependencies

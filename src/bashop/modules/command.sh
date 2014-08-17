@@ -11,7 +11,7 @@
 # Returns:
 #   None
 ##########################################
-bashop::command::show_help() {
+bashop::command::__show_help() {
   # Check which arguments given and not empty
   local raw_command=("${!1}")
 
@@ -63,7 +63,7 @@ bashop::command::show_help() {
 # Returns:
 #   None
 ##########################################
-bashop::command::parse_arguments() {
+bashop::command::__parse_arguments() {
   # Declare global argument array
   declare -g -A args=()
 
@@ -108,7 +108,7 @@ bashop::command::parse_arguments() {
       if [[ ${com_args_repeatable} == false ]] && [[ -n "${com_arg_rep}" ]]; then
         com_args_repeatable=true
       elif [[ ${com_args_repeatable} == true ]]; then
-        bashop::printer::framework_error "Only the last argument can be repeatable, but you have defined '${raw_command_arguments[@]}'."
+        bashop::printer::__framework_error "Only the last argument can be repeatable, but you have defined '${raw_command_arguments[@]}'."
         exit 1
       fi
     elif [[ ${command_argument} =~ ${short_option_regex} ]] || [[ ${command_argument} =~ ${long_option_regex} ]]; then
@@ -138,7 +138,7 @@ bashop::command::parse_arguments() {
   for opt in "${raw_command_options[@]}"; do
     # Check if option is valid
     if ! [[ ${opt} =~ ${option_regex} ]]; then
-      bashop::printer::framework_error "Wrong pattern for option '${opt}'."
+      bashop::printer::__framework_error "Wrong pattern for option '${opt}'."
       exit 1
     fi
 
@@ -183,7 +183,7 @@ bashop::command::parse_arguments() {
       if ( [[ -n "${p_opts["short_opt_repeatable"]}" ]] && ! [[ -n "${p_opts["long_opt_repeatable"]}" ]] ) ||
          ( ! [[ -n "${p_opts["short_opt_repeatable"]}" ]] && [[ -n "${p_opts["long_opt_repeatable"]}" ]] )
       then
-        bashop::printer::framework_error "One of the option of '${opt}' is repeatable so both must be repeatable."
+        bashop::printer::__framework_error "One of the option of '${opt}' is repeatable so both must be repeatable."
         exit 1
       fi
 
@@ -191,7 +191,7 @@ bashop::command::parse_arguments() {
       if ( [[ -n "${p_opts["short_opt_arg"]}" ]] && ! [[ -n "${p_opts["long_opt_arg"]}" ]] ) ||
          ( ! [[ -n "${p_opts["short_opt_arg"]}" ]] && [[ -n "${p_opts["long_opt_arg"]}" ]] )
       then
-        bashop::printer::framework_error "One of the option of '${opt}' accepts an argument so both must accept one."
+        bashop::printer::__framework_error "One of the option of '${opt}' accepts an argument so both must accept one."
         exit 1
       fi
 
@@ -205,7 +205,7 @@ bashop::command::parse_arguments() {
       type_name='long'
       cur_opt=${p_opts["long_opt_name"]}
     else
-      bashop::printer::framework_error "Wrong pattern for option '${opt}'."
+      bashop::printer::__framework_error "Wrong pattern for option '${opt}'."
       exit 1
     fi
 
@@ -243,7 +243,7 @@ bashop::command::parse_arguments() {
 
     if [[ ${counter} -lt ${no_commands} ]] && !(bashop::utils::is_option ${arg}); then
       if [[ ${arg} != ${raw_command[${counter}]} ]]; then
-        bashop::printer::framework_error "Unknown command '${arg}' called"
+        bashop::printer::__framework_error "Unknown command '${arg}' called"
         exit 1
       fi
     elif [[ ${arg} == '--' ]]; then
