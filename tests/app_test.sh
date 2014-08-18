@@ -20,7 +20,7 @@ function check_show_help() {
   test_string+=$'  testapp <command> [options] <arguments>\n\n'
   test_string+=$'Commands:\n'
   test_string+=$'  com         The example command\n'
-  test_string+=$'  com subcom  A command with one option\n\n'
+  test_string+=$'  com subcom  The example sub command\n\n'
   test_string+=$'Options:\n'
   test_string+=$'  -h --help     Shows this help\n'
   test_string+=$'  -v --verbose  Shows more detailed information'
