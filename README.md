@@ -3,8 +3,8 @@
 Bashop is a bash framework which makes your life easier if you want to write an bash application. It comes with the following features:
 
 * Argument parser based on docopt.org
-** Mostly all is implemented expect the stacking of short options and the | operator for options.
-** In addition there is a option to mark options repeatable with _--all..._.
+ * Mostly all is implemented expect the stacking of short options and the | operator for options.
+ * In addition there is a option to mark options repeatable with _--all..._.
 * Automated help pages
 * Done in pure bash, no grep, sed etc. used.
 
@@ -26,7 +26,7 @@ If an option has an short and an long option name the key is the long option nam
 ## Global variables
 
 * _args_
-** This is the most important global variable, which is set from the parser.
+ * This is the most important global variable, which is set from the parser.
 * _BASHOP_ROOT_ The dir where bashop is stored.
 * _BASHOP_APP_ROOT_ The dir where the app is stored.
 * __BASHOP_APP_COMMAND_ROOT_ The dir where the app command scripts are stored.
