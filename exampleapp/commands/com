@@ -1,20 +1,12 @@
 #!/usr/bin/env bash
 
 #?d The example command
-#?c --test -z <name> <version> [<extra>...]
-#?o -a  Test
-#?o -g --ver  Test
-#?o --option  An optional option.
-#?o --repeatable...  A repeatable option.
-#?o -o, --optional-opt  An optional option with shortcut.
-#?o -r..., --repeatable-opt...  A repeatable option with shortcut.
-#?o -a ARG, --argument-opt=<arg>  A required option with optional argument [default: test].
-#?o -b... <arg>, --bbb...=<arg>  A required option with requrired argument.
-#?o -c... SARG --output...=<arg>  Aaaa [default: test].
-#?o -d <sarg> --dee LARG  Aaaa [default: test].
-#?o -e <sarg> --eee LARG  Aaaa.
-
-BASHOP_COMMAND_DESCRIPTION="The example command"
+#?c --coption -z <name> <version> [<extra>...]
+#?o -a  Short option
+#?o -b --boption  Short and long option.
+#?o -r..., --roption...  A repeatable option with shortcut.
+#?o -x... <arg>, --xoption...=<arg>  A repeatable option with requrired argument.
+#?o -y... <arg>, --yoption...=<arg>  A repeatable option with requrired argument [default: test].
 
 bashop::run_command() {
   echo "---- Args -----"

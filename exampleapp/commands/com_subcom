@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-#?d A command with one option
-#?o -v arg>  Description
+#?d The example sub command
+#?o -test <arg>  Description
 
 bashop::run_command() {
   bashop::printer::info "Command without args"
