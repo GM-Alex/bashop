@@ -1,4 +1,4 @@
-# Bashop
+# Bashop [![Build Status](https://travis-ci.com/GM-Alex/bashop.svg?branch=master)](https://travis-ci.com/GM-Alex/bashop)
 
 Bashop is a bash framework which makes your life easier if you want to write an bash application. It comes with the following features:
 
