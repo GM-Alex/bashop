@@ -29,7 +29,7 @@ If an option has an short and an long option name the key is the long option nam
  * This is the most important global variable, which is set from the parser.
 * _BASHOP_ROOT_ The dir where bashop is stored.
 * _BASHOP_APP_ROOT_ The dir where the app is stored.
-* __BASHOP_APP_COMMAND_ROOT_ The dir where the app command scripts are stored.
+* _\_BASHOP_APP_COMMAND_ROOT_ The dir where the app command scripts are stored.
 
 All other global options which start it an \_ should be not used. The are for internal stuff.
 
