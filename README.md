@@ -15,6 +15,11 @@ Bashop is a bash framework which makes your life easier if you want to write an 
 - [ ] Auto completion for commands
 
 
+### Already tested environments
+
+* Ubuntu 14.04 - bash 4.3.11
+* Fedora 20, Fedora 21 -  bash 4.2.47 and fishshell 2.1.0
+
 
 ## The argument parser
 
@@ -29,7 +34,7 @@ If an option has an short and an long option name the key is the long option nam
  * This is the most important global variable, which is set from the parser.
 * _BASHOP_ROOT_ The dir where bashop is stored.
 * _BASHOP_APP_ROOT_ The dir where the app is stored.
-* _\_BASHOP_APP_COMMAND_ROOT_ The dir where the app command scripts are stored.
+* _BASHOP_APP_COMMAND_ROOT_ The dir where the app command scripts are stored.
 
 All other global options which start it an \_ should be not used. The are for internal stuff.
 
@@ -38,12 +43,11 @@ All other global options which start it an \_ should be not used. The are for in
 
 ### Suggested folder structure
 
-.
-+-- src
-|   +-- commands
-|   +-- yourapp
-+-- vendor
-|   +-- bashop
+* src
+ * commands
+ * yourapp
+* vendor
+ * bashop
 
 The _commands_ folder holds all commands. _yourapp_ is the main app file.
 
@@ -53,11 +57,11 @@ The _commands_ folder holds all commands. _yourapp_ is the main app file.
 ```bash
 #!/usr/bin/env bash
 bashop::init() {
-  bashop::printer::info "init: ${BASHOP_ROOT}";
+  bashop::printer::info "init";
 }
 
 bashop::destroy() {
-  bashop::printer::info "destroy: ${BASHOP_ROOT}";
+  bashop::printer::info "destroy";
 }
 
 source "../vendor/bashop/bootstrap.sh"
@@ -79,7 +83,7 @@ The functions _bashop::init_ (is executed at the startup) and _bashop::destroy_ 
 #?o -y... <arg>, --yoption...=<arg>  A repeatable option with requrired argument [default: test].
 
 bashop::run_command() {
-  echo "Command"
+  bashop::printer::info "Command"
 }
 ```
 
