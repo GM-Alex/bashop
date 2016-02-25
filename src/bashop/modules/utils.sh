@@ -94,7 +94,8 @@ bashop::utils::function_exists() {
 ##################################
 bashop::utils::string_repeat() {
   if [[ ${2} -gt 0 ]]; then
-    printf "${1}%.0s" $(eval "echo {1.."$(($2))"}")
+    eval="echo {1.."$(($2))"}"
+    printf "${1}%.0s" $(eval ${eval})
   fi
 }
 
@@ -140,7 +141,7 @@ bashop::utils::string_length() {
   local strings=("${!1}")
   local min_length=false
   local max_length=0
-  local string
+  local string=()
 
   for string in "${strings[@]}"; do
     if [[ ${min_length} == false ]] || [[ ${#string} -lt ${min_length} ]]; then

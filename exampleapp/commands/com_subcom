@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #?d The example sub command
-#?o --test <arg>  Description
+#?o --test=<arg>  Description
 
 bashop::run_command() {
   bashop::printer::info "Command without args"

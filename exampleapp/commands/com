@@ -15,7 +15,7 @@ bashop::run_command() {
     k=$(echo ${key} | grep -o '[a-z0-9\<\>\-]*')
 
 
-    if [[ $(echo ${key} | grep -o '[\#]*') == "#" ]] && (bashop::utils::key_exists "${k},#" args); then
+    if [[ "$(echo ${key} | grep -o '[\#]*')" -eq "#" ]] && (bashop::utils::key_exists "${k},#" args); then
       echo "|> ${k} R"
 
       if [[ ${args["${k},#"]} -eq 0 ]]; then
@@ -27,7 +27,7 @@ bashop::run_command() {
           i=$[${i}+1]
         done
       fi
-    elif [[ -z $(echo ${key} | grep -o '[\,]*') ]]; then
+    elif [[ -z "$(echo ${key} | grep -o '[\,]*')" ]]; then
       echo "|> ${k} S"
 
       if [[ -n ${args[${k}]} ]]; then
