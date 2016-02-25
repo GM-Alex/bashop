@@ -135,7 +135,7 @@ bashop::app::__start() {
       fi
 
       # If no arguments given and the command needs arguments show the help page
-      if ( [[ ${#command_arguments[@]} -gt 0 ]] || [[ ${#command_options[@]} -gt 0 ]] ) && [[ ${diff} -lt 1 ]] ||
+      if ( [[ ${#command_arguments[@]} -gt 0 ]] ) && [[ ${diff} -lt 1 ]] ||
          (bashop::utils::contains_element '-h' "${raw_arguments[@]}") ||
          (bashop::utils::contains_element '--help' "${raw_arguments[@]}")
       then
