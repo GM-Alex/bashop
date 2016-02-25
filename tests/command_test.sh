@@ -117,7 +117,7 @@ function check_parse_arguments() {
 
   raw_arguments=( "command" "subcom" "name" "version" "--zoption" "--zoption" )
   fnc_string=$(bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@])
-  assertion__string_contains "${fnc_string}" "Error: '--zoption' can't be multiple definied"
+  assertion__string_contains "${fnc_string}" "Error: '--zoption' can't be multiple defined"
 
   raw_arguments=( "command" "subcom" "name" "version" "-i" )
   fnc_string=$(bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@])
@@ -126,7 +126,7 @@ function check_parse_arguments() {
   local tmp_command_arguments=( "<name>" "<version>" )
   raw_arguments=( "command" "subcom" "name" "version" "unkown" )
   fnc_string=$(bashop::command::__parse_arguments command[@] tmp_command_arguments[@] command_options[@] raw_arguments[@])
-  assertion__string_contains "${fnc_string}" "Error: Unknow argument 'unkown'"
+  assertion__string_contains "${fnc_string}" "Error: Unknown argument 'unkown'"
 
   raw_arguments=( "command" "subcom" "name" )
   fnc_string=$(bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@])

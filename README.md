@@ -89,7 +89,7 @@ bashop::run_command() {
 
 The _#?d_ comment describes the command itself and is parsed for the help page.
 The _#?c_ comment is parsed by the argument parser and defines the command parameters, it's also used for the help.
-The _#?o_ comment is pareed by the argument parser and defines the command options, it's also used for the help.
+The _#?o_ comment is parsed by the argument parser and defines the command options, it's also used for the help.
 
 
 ## Build in option
@@ -116,7 +116,7 @@ The _#?o_ comment is pareed by the argument parser and defines the command optio
 * bashop::printer::success
 * bashop::printer::error
 * bashop::printer::verbose
-* bashop::printer::help_formater
+* bashop::printer::help_formatter
 
 All functions which start with an \_\_ double dash for example _bashop::printer::__framework_error_ are for internal stuff and should not use by your application.
 

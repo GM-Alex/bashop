@@ -5,8 +5,8 @@
 #?o -a  Short option
 #?o -b --boption  Short and long option.
 #?o -r..., --roption...  A repeatable option with shortcut.
-#?o -x... <arg>, --xoption...=<arg>  A repeatable option with requrired argument.
-#?o -y... <arg>, --yoption...=<arg>  A repeatable option with requrired argument [default: test].
+#?o -x... <arg>, --xoption...=<arg>  A repeatable option with required argument.
+#?o -y... <arg>, --yoption...=<arg>  A repeatable option with required argument [default: test].
 
 bashop::run_command() {
   echo "---- Args -----"

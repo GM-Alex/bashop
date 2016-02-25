@@ -102,7 +102,7 @@ function check_framework_error() {
   assertion__string_contains "${fnc_string}" $'\033[0m'
 }
 
-function check_help_formater() {
+function check_help_formatter() {
   #Should be '  func   desc1\n  func2  desc2\n' but last '\n' will be removed from bash, so that should be also ok
   local test_string=''
   test_string+=$'  func   desc1\n'
@@ -113,12 +113,12 @@ function check_help_formater() {
     "func2  desc2"
   )
 
-  local fnc_string=$(bashop::printer::help_formater array[@])
+  local fnc_string=$(bashop::printer::help_formatter array[@])
   assertion__equal "${test_string}" "${fnc_string}"
 
 
   array+=( "wrongfunc wrong_desc" )
 
-  local fnc_string=$(bashop::printer::help_formater array[@])
+  local fnc_string=$(bashop::printer::help_formatter array[@])
   assertion__string_contains "${fnc_string}" "FRAMEWORK ERROR: Wrong syntax"
 }

@@ -6,7 +6,7 @@
 #   None
 # Arguments:
 #   string msg
-#   string line_seperator (optional)
+#   string line_separator (optional)
 # Returns:
 #   string
 ##########################################
@@ -26,7 +26,7 @@ bashop::printer::echo() {
 #   None
 # Arguments:
 #   string msg
-#   string line_seperator (optional)
+#   string line_separator (optional)
 # Returns:
 #   string
 ######################
@@ -42,7 +42,7 @@ bashop::printer::info() {
 #   None
 # Arguments:
 #   string msg
-#   string line_seperator (optional)
+#   string line_separator (optional)
 # Returns:
 #   string
 ######################
@@ -58,7 +58,7 @@ bashop::printer::user() {
 #   None
 # Arguments:
 #   string msg
-#   string line_seperator (optional)
+#   string line_separator (optional)
 # Returns:
 #   string
 #########################
@@ -74,7 +74,7 @@ bashop::printer::success() {
 #   None
 # Arguments:
 #   string msg
-#   string line_seperator (optional)
+#   string line_separator (optional)
 # Returns:
 #   string
 ########################################
@@ -90,7 +90,7 @@ bashop::printer::error() {
 #   None
 # Arguments:
 #   string msg
-#   string line_seperator (optional)
+#   string line_separator (optional)
 # Returns:
 #   string
 #########################
@@ -133,7 +133,7 @@ bashop::printer::__framework_error() {
 # Returns:
 #   string
 #################################
-bashop::printer::help_formater() {
+bashop::printer::help_formatter() {
   local help_texts=("${!1}")
   local help_text
   local help_regex="(.*)  (.*)"

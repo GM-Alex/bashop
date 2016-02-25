@@ -14,27 +14,27 @@
 bashop::command::__show_help() {
   # Check which arguments given and not empty
   local raw_command=("${!1}")
+  local raw_command_arguments=()
 
-  if ! [[ -n ${!2+1} ]]; then
-    local raw_command_arguments=()
-  else
-    local raw_command_arguments=("${!2}")
+  if [[ -n ${!2+1} ]]; then
+    raw_command_arguments=("${!2}")
   fi
 
-  if ! [[ -n ${!3+1} ]]; then
-    local raw_command_options=()
-  else
-    local raw_command_options=("${!3}")
+  local raw_command_options=()
+
+  if [[ -n ${!3+1} ]]; then
+    raw_command_options=("${!3}")
   fi
 
   # Print command usage
-  local full_command=${raw_command[@]}
+  local full_command="${raw_command[@]}"
 
   bashop::printer::echo "Usage:"
   bashop::printer::echo "  ${full_command[@]} [options] " false
 
   if [[ ${#raw_command_arguments[@]} -gt 0 ]]; then
-    bashop::printer::echo "${raw_command_arguments[@]}" false
+    local full_arguments="${raw_command_arguments[@]}"
+    bashop::printer::echo "${full_arguments}" false
   fi
 
   bashop::printer::echo "" "\n\n"
@@ -48,7 +48,7 @@ bashop::command::__show_help() {
     raw_command_options=( "${_BASHOP_BUILD_IN_OPTIONS[@]}" )
   fi
 
-  bashop::printer::help_formater raw_command_options[@]
+  bashop::printer::help_formatter raw_command_options[@]
 }
 
 ##########################################
@@ -67,7 +67,7 @@ bashop::command::__parse_arguments() {
   # Declare global argument array
   declare -g -A args=()
 
-  # Get function agruments
+  # Get function arguments
   local raw_command=("${!1}")
   local raw_command_arguments=("${!2}")
   local raw_command_options=("${!3}")
@@ -88,18 +88,18 @@ bashop::command::__parse_arguments() {
 
   # Command regex
   local command_arg_regex='(([\<][a-zA-Z0-9]+[\>])([.]{3}){0,1})'
-  local commmand_arg_requried_regex="^${command_arg_regex}$"
-  local commmand_arg_optional_regex="^\[${command_arg_regex}\]$"
+  local command_arg_required_regex="^${command_arg_regex}$"
+  local command_arg_optional_regex="^\[${command_arg_regex}\]$"
 
   # Get command arguments
-  local command_arugment
+  local command_argument
 
-  for command_argument in ${raw_command_arguments[@]}; do
-    if [[ ${command_argument} =~ ${commmand_arg_requried_regex} ]] || [[ ${command_argument} =~ ${commmand_arg_optional_regex} ]]; then
+  for command_argument in "${raw_command_arguments[@]}"; do
+    if [[ ${command_argument} =~ ${command_arg_required_regex} ]] || [[ ${command_argument} =~ ${command_arg_optional_regex} ]]; then
       local com_arg_name=${BASH_REMATCH[2]}
       local com_arg_rep=${BASH_REMATCH[3]}
 
-      if [[ ${command_argument} =~ ${commmand_arg_requried_regex} ]]; then
+      if [[ ${command_argument} =~ ${command_arg_required_regex} ]]; then
         com_args_required+=( ${com_arg_name} )
       fi
 
@@ -119,10 +119,10 @@ bashop::command::__parse_arguments() {
 
   # ---- Command options ----
 
-  # Get definied options
-  local opt_map opt_default_arg
+  # Get defined options
   declare -A opt_map=()
   declare -A opt_default_arg=()
+  local opt_map opt_default_arg
 
   # Short option regex
   local option_regex+="^(${short_option_regex}[,]{0,1}[ ]{0,1}){0,1}"
@@ -142,10 +142,10 @@ bashop::command::__parse_arguments() {
       exit 1
     fi
 
-    local p_opts
     declare -A p_opts=()
+    local p_opts
 
-    # Get short options name and agrument name
+    # Get short options name and argument name
     p_opts["short_opt_name"]=${BASH_REMATCH[2]}
     p_opts["short_opt_repeatable"]=${BASH_REMATCH[3]}
     p_opts["short_opt_arg"]=''
@@ -237,7 +237,7 @@ bashop::command::__parse_arguments() {
   local req_param_name=''
   local double_dash=false
 
-  # Iterate over the raw argumgents
+  # Iterate over the raw arguments
   while [[ ${counter} -lt ${no_raw_arguments} ]]; do
     arg=${raw_arguments[${counter}]}
 
@@ -273,7 +273,7 @@ bashop::command::__parse_arguments() {
       # Check if arg is already set
       if !(bashop::utils::key_exists "${current_arg},#" args); then
         if [[ -n ${args["${current_arg}"]} ]]; then
-          bashop::printer::error "'${current_arg}' can't be multiple definied"
+          bashop::printer::error "'${current_arg}' can't be multiple defined"
           exit 1
         else
           args[${current_arg}]=true
@@ -316,10 +316,10 @@ bashop::command::__parse_arguments() {
       local req_param_name=${com_args[${com_arg_counter}]}
 
       if [[ ${com_arg_counter} -eq $((no_com_args - 1)) ]] && [[ ${com_args_repeatable} == true ]]; then
-        if !(bashop::utils::key_exists "${req_param_name},#" args); then
-          local no_opt_args=0
-        else
-          local no_opt_args=${args["${req_param_name},#"]}
+        local no_opt_args=0
+
+        if (bashop::utils::key_exists "${req_param_name},#" args); then
+          no_opt_args=${args["${req_param_name},#"]}
         fi
 
         args["${req_param_name},${no_opt_args}"]="${arg}"
@@ -329,17 +329,17 @@ bashop::command::__parse_arguments() {
         com_arg_counter=$((com_arg_counter + 1))
       fi
     else
-      bashop::printer::error "Unknow argument '${arg}'"
+      bashop::printer::error "Unknown argument '${arg}'"
       exit 1
     fi
 
     counter=$((counter + 1))
   done
 
-  # Check if all requried args are set
+  # Check if all required args are set
   local com_arg_req
 
-  for com_arg_req in ${com_args_required[@]}; do
+  for com_arg_req in "${com_args_required[@]}"; do
     if !(bashop::utils::key_exists ${com_arg_req} args); then
       bashop::printer::error "Missing required command argument '${com_arg_req}'"
       exit 1

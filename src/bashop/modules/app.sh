@@ -17,11 +17,11 @@ bashop::app::__show_help() {
   bashop::printer::echo "Commands:"
 
   # Grep commands and show help page
-  local commands=( "${BASHOP_APP_COMMAND_ROOT}/*" )
+  local commands=( ${BASHOP_APP_COMMAND_ROOT}/* )
   local commands_to_show=()
   local command
 
-  for command in ${commands[@]}; do
+  for command in "${commands[@]}"; do
     source ${command}
     local command_name=$([[ ${command} =~ ([^\/]+)$ ]] && echo "${BASH_REMATCH[1]}")
     local command_description=''
@@ -35,11 +35,11 @@ bashop::app::__show_help() {
     commands_to_show+=( "${command_name//_/ }  ${command_description}" )
   done
 
-  bashop::printer::help_formater commands_to_show[@]
+  bashop::printer::help_formatter commands_to_show[@]
 
   bashop::printer::echo "" "\n"
   bashop::printer::echo "Options:"
-  bashop::printer::help_formater _BASHOP_BUILD_IN_OPTIONS[@]
+  bashop::printer::help_formatter _BASHOP_BUILD_IN_OPTIONS[@]
 }
 
 #########################
@@ -104,7 +104,7 @@ bashop::app::__start() {
 
       while read line; do
         if [[ ${line} =~ ^#\?c([ ]*)(.*)$ ]]; then
-          command_arguments=( "${BASH_REMATCH[2]}" )
+          command_arguments=( ${BASH_REMATCH[2]} )
         elif [[ ${line} =~ ^#\?o([ ]*)(.*)$ ]]; then
           command_options+=( "${BASH_REMATCH[2]}" )
         fi
@@ -119,15 +119,15 @@ bashop::app::__start() {
       local diff=$((no_args - no_command))
 
       # Set verbose mode
-      if (bashop::utils::contains_element '-v' ${raw_arguments[@]}) ||
-         (bashop::utils::contains_element '--verbose' ${raw_arguments[@]})
+      if (bashop::utils::contains_element '-v' "${raw_arguments[@]}") ||
+         (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}")
       then
         _BASHOP_VERBOSE=true
         local raw_arg
         local raw_args_copy=( "${raw_arguments[@]}" )
         raw_arguments=()
 
-        for raw_arg in ${raw_args_copy[@]}; do
+        for raw_arg in "${raw_args_copy[@]}"; do
           if [[ ${raw_arg} != '-v' ]] && [[ ${raw_arg} != '--verbose' ]]; then
             raw_arguments+=( ${raw_arg} )
           fi
@@ -136,8 +136,8 @@ bashop::app::__start() {
 
       # If no arguments given and the command needs arguments show the help page
       if ( [[ ${#command_arguments[@]} -gt 0 ]] || [[ ${#command_options[@]} -gt 0 ]] ) && [[ ${diff} -lt 1 ]] ||
-         (bashop::utils::contains_element '-h' ${raw_arguments[@]}) ||
-         (bashop::utils::contains_element '--help' ${raw_arguments[@]})
+         (bashop::utils::contains_element '-h' "${raw_arguments[@]}") ||
+         (bashop::utils::contains_element '--help' "${raw_arguments[@]}")
       then
         local command_with_app_name=( "${app_name}" "${command[@]}" )
         bashop::command::__show_help command_with_app_name[@] command_arguments[@] command_options[@]
