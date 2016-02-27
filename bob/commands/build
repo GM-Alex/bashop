@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+#?d Builds your bashop app and packs it to one file
+#?c <file> <output_dir>
+
+bashop::run_command() {
+  local start_file=${args['<file>']}
+  local output_dir=${args['<output_dir>']}
+
+  if [[ ! -d ${output_dir} ]]; then
+    mkdir -p ${output_dir}
+  fi
+
+  local output_file="${output_dir}/${start_file}"
+  echo "#!/usr/bin/env bash" > ${output_file}
+
+  bob::build::processFile ${start_file} ${output_dir} ${output_file}
+  bashop::printer::success "Build done"
+}
+
+bob::build::processFile() {
+  local file=${1}
+  local output_dir=${2}
+  local output_file=${3}
+  local is_command=0
+
+  if [[ -n ${!4+1} ]]; then
+    local is_command=${4}
+  fi
+
+  # Add command files before the app file
+  if [[ ${file##*/} =~ ^(.*)bashop/modules/app.sh$ ]] && [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
+    local commands=( ${BASHOP_APP_COMMAND_ROOT}/* )
+    local command_file
+
+    for command_file in "${commands[@]}"; do
+      bob::build::processFile ${command_file} ${output_dir} ${output_file} 1
+    done
+  fi
+
+  local tmpFile="${output_dir}/tmp_${file##*/}"
+
+  bashop::printer::info "Processing file: ${file}"
+
+  # Create tmp file and add extra line to file to
+  # fix issue with files with non empty line at the end
+  cp ${file} ${tmpFile}
+  echo "" >> ${tmpFile}
+
+  if [[ ${is_command} -eq 1 ]]; then
+    echo "#?com ${file##*/}" >> ${output_file}
+  fi
+
+  # Process all files and add new ones if found
+  IFS=''
+  while read -r line; do
+    if [[ ${is_command} -eq 1 ]] && [[ ${line} =~ ^\s*bashop::run_command.*?$ ]]; then
+      echo "${line//bashop::run_command/bashop::${file##*/}::run_command}" >> ${output_file}
+    elif [[ ${line} =~ ^([ ]*)(source )[\'\"]?([^\"\']*)[\'\"]?$ ]]; then
+      local file_to_include=${BASH_REMATCH[3]}
+
+      if [[ ! ${file_to_include} =~ ^\$\{command_path\}$ ]]; then
+        if [[ ${file_to_include} =~ ^(\$\{BASHOP_ROOT\})(.*)$ ]]; then
+          file_to_include="${BASHOP_ROOT}${BASH_REMATCH[2]}"
+        fi
+  
+        bob::build::processFile ${file_to_include} ${output_dir} ${output_file}
+      fi
+    elif [[ ! ${line} =~ ^\s*$ ]] && [[ ! ${line} =~ ^#! ]]; then
+      echo ${line} >> ${output_file}
+    fi
+  done < ${tmpFile}
+
+  if [[ -f ${tmpFile} ]]; then
+    rm ${tmpFile}
+  fi
+}

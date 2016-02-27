@@ -78,6 +78,7 @@ bashop::utils::is_option() {
 #   Bool
 ######################################
 bashop::utils::function_exists() {
+  echo ${1}
   declare -f -F ${1} > /dev/null
   return $?
 }

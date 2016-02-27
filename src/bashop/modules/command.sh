@@ -98,7 +98,7 @@ bashop::command::__parse_arguments() {
   local com_args=()
 
   # Command regex
-  local command_arg_regex='(([\<][a-zA-Z0-9]+[\>])([.]{3}){0,1})'
+  local command_arg_regex='(([\<][a-zA-Z0-9_]+[\>])([.]{3}){0,1})'
   local command_arg_required_regex="^${command_arg_regex}$"
   local command_arg_optional_regex="^\[${command_arg_regex}\]$"
 
