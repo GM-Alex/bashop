@@ -3,6 +3,15 @@
 #?d Builds your bashop app and packs it to one file
 #?c <file> <output_dir>
 
+##########################################
+# Starts the build process
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
 bashop::run_command() {
   local start_file=${args['<file>']}
   local output_dir=${args['<output_dir>']}
@@ -18,6 +27,18 @@ bashop::run_command() {
   bashop::printer::success "Build done"
 }
 
+##########################################
+# Processes a file
+# Globals:
+#   None
+# Arguments:
+#   string file
+#   string output_dir
+#   string output_file
+#   bool   is_command (optional)
+# Returns:
+#   None
+##########################################
 bob::build::processFile() {
   local file=${1}
   local output_dir=${2}

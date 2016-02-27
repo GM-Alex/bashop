@@ -5,7 +5,7 @@
 # Globals:
 #   None
 # Arguments:
-#   None
+#   string app_name
 # Returns:
 #   None
 ##################################

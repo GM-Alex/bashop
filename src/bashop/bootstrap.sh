@@ -1,11 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+##########################################
 # Helper functions to solve paths
+# Globals:
+#   None
+# Arguments:
+#   string path
+# Returns:
+#   string
+##########################################
 bashop::resolve_link() {
   $(type -p greadlink readlink | head -1) "${1}"
 }
 
+##########################################
+# Return the absolute dir name
+# Globals:
+#   None
+# Arguments:
+#   string path
+# Returns:
+#   string
+##########################################
 bashop::abs_dirname() {
   local cwd="$(pwd)"
   local path="${1}"

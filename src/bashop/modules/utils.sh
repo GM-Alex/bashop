@@ -7,7 +7,7 @@
 # Arguments:
 #   mixed variable
 # Returns:
-#   Bool
+#   bool
 ##############################
 bashop::utils::isset() {
   if [[ ${1+isset} == 'isset' ]]; then
@@ -23,9 +23,9 @@ bashop::utils::isset() {
 #   None
 # Arguments:
 #   string needle
-#   array  hackstay
+#   array  haystack
 # Returns:
-#   Bool
+#   bool
 ###############################################
 bashop::utils::contains_element() {
   local e
@@ -43,9 +43,9 @@ bashop::utils::contains_element() {
 #   None
 # Arguments:
 #   string needle
-#   array  hackstay
+#   array  haystack
 # Returns:
-#   Bool
+#   bool
 #####################################################
 bashop::utils::key_exists() {
   eval '[ ${'${2}'[${1}]+key_exists} ]'
@@ -58,7 +58,7 @@ bashop::utils::key_exists() {
 # Arguments:
 #   string option
 # Returns:
-#   Bool
+#   bool
 #######################################################
 bashop::utils::is_option() {
   if [[ ${1} =~ ^-{1,2}[^-].* ]]; then
@@ -75,7 +75,7 @@ bashop::utils::is_option() {
 # Arguments:
 #   string function_name
 # Returns:
-#   Bool
+#   bool
 ######################################
 bashop::utils::function_exists() {
   echo ${1}
