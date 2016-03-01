@@ -3,7 +3,7 @@
 #?d The example sub command
 #?o --test=<arg>  Description
 
-bashop::run_command() {
+bashop::run_command::com_subcom() {
   bashop::printer::info "Command without args"
 }
 

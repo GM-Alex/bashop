@@ -32,7 +32,7 @@ bashop::printer::echo() {
 ######################
 bashop::printer::info() {
   printf "\033[00;34m"
-  bashop::printer::echo "Info: ${1}" "${@:2}"
+  bashop::printer::echo "${1}" "${@:2}"
   printf "\033[0m"
 }
 
@@ -80,7 +80,7 @@ bashop::printer::success() {
 ########################################
 bashop::printer::error() {
   printf "\033[00;31m"
-  bashop::printer::echo "Error: ${1}" "${@:2}"
+  bashop::printer::echo "${1}" "${@:2}"
   printf "\033[0m"
 }
 

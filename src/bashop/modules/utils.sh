@@ -78,7 +78,6 @@ bashop::utils::is_option() {
 #   bool
 ######################################
 bashop::utils::function_exists() {
-  echo ${1}
   declare -f -F ${1} > /dev/null
   return $?
 }
@@ -208,4 +207,23 @@ bashop::utils::check_version() {
   fi
 
   return 1
+}
+
+#####################################
+# Checks if the command is available
+# Globals:
+#   None
+# Arguments:
+#   string command
+# Returns:
+#   bool
+#####################################
+bashop::utils::command_exists() {
+  local command=${1}
+
+  if command -v ${command} >/dev/null 2>&1; then
+    return 0
+  else
+    return 1
+  fi
 }

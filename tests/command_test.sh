@@ -109,7 +109,7 @@ function check_parse_arguments() {
 
   raw_arguments=( "command" "subcom" "name" "version" "--option" )
   fnc_string=$(bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@])
-  assertion__string_contains "${fnc_string}" "Error: Unkown option '--option'"
+  assertion__string_contains "${fnc_string}" "Unkown option '--option'"
 
   raw_arguments=( "command" "subcom" "name" "version" "--zoption" )
   (bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@])
@@ -117,18 +117,18 @@ function check_parse_arguments() {
 
   raw_arguments=( "command" "subcom" "name" "version" "--zoption" "--zoption" )
   fnc_string=$(bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@])
-  assertion__string_contains "${fnc_string}" "Error: '--zoption' can't be multiple defined"
+  assertion__string_contains "${fnc_string}" "'--zoption' can't be multiple defined"
 
   raw_arguments=( "command" "subcom" "name" "version" "-i" )
   fnc_string=$(bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@])
-  assertion__string_contains "${fnc_string}" "Error: Missing required argument for option '--ioption'"
+  assertion__string_contains "${fnc_string}" "Missing required argument for option '--ioption'"
 
   local tmp_command_arguments=( "<name>" "<version>" )
   raw_arguments=( "command" "subcom" "name" "version" "unkown" )
   fnc_string=$(bashop::command::__parse_arguments command[@] tmp_command_arguments[@] command_options[@] raw_arguments[@])
-  assertion__string_contains "${fnc_string}" "Error: Unknown argument 'unkown'"
+  assertion__string_contains "${fnc_string}" "Unknown argument 'unkown'"
 
   raw_arguments=( "command" "subcom" "name" )
   fnc_string=$(bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@])
-  assertion__string_contains "${fnc_string}" "Error: Missing required command argument '<version>'"
+  assertion__string_contains "${fnc_string}" "Missing required command argument '<version>'"
 }

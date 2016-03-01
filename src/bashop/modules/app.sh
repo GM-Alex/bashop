@@ -83,7 +83,7 @@ bashop::app::__start() {
       # Check if we have a valid command
       local possible_command=()
       local command=()
-      local command_path=''
+      local command_path="${0}"
       local command_name=''
       local tmp_path="${BASHOP_APP_COMMAND_ROOT}/"
       local param
@@ -91,46 +91,32 @@ bashop::app::__start() {
       for param in ${@}; do
         if !(bashop::utils::is_option ${param}); then
           possible_command+=( ${param} )
-          #command+=( ${param} )
         fi
       done
 
       local line
+
+      while read line; do
+        if [[ ${line} =~ ^#\?com([ ]*)(.*)$ ]]; then
+          _BASHOP_KNOWN_COMMANDS+=( ${BASH_REMATCH[2]} )
+        fi
+      done < ${0}
+
       local command_param
 
-      if [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
-        for command_param in "${possible_command[@]}"; do
-          if [[ -f "${tmp_path}${command_param}" ]]; then
-            tmp_path+=${command_param}
-            command_path=${tmp_path}
-            tmp_path+='_'
-            command+=( ${command_param} )
+      for command_param in "${possible_command[@]}"; do
+        if (bashop::utils::contains_element "${_BASHOP_KNOWN_COMMANDS[@]}" ${command_param}); then
+          if [[ ${command_name} != "" ]]; then
+            command_name+="_"
           fi
-        done
 
-        if ! [[ -n ${command_path} ]]; then
-          bashop::printer::error "The command '${possible_command[@]}' does not exists"
-          exit 1
+          command+=( ${command_param} )
+          command_name+=${command_param}
         fi
+      done
 
-        source "${command_path}"
-      else
-        command_path=${0}
-
-        while read line; do
-          if [[ ${line} =~ ^#\?com([ ]*)(.*)$ ]]; then
-            for command_param in "${possible_command[@]}"; do
-              if [[ ${line} =~ ^#\?com([ ]*)${command_name}_?${command_param}([ ]*)$ ]]; then
-                if [[ ${command_name} != "" ]]; then
-                  command_name+="_"
-                fi
-
-                command+=( ${command_param} )
-                command_name+=${command_param}
-              fi
-            done
-          fi
-        done < "${command_path}"
+      if [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
+        command_path="${BASHOP_APP_COMMAND_ROOT}/${command_name}"
       fi
 
       # Grep options and arguments form the command file
@@ -143,9 +129,6 @@ bashop::app::__start() {
           command_arguments=()
           command_options=()
           inline_command_processed=true
-        elif [[ ${line} =~ ^#\?com([ ]*)(.*)$ ]] && [[ ${inline_command_processed} == true ]]; then
-          echo "end"
-          break
         elif [[ ${line} =~ ^#\?c([ ]*)(.*)$ ]]; then
           command_arguments=( ${BASH_REMATCH[2]} )
         elif [[ ${line} =~ ^#\?o([ ]*)(.*)$ ]]; then
@@ -186,12 +169,10 @@ bashop::app::__start() {
       else
         bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@]
 
-        if (bashop::utils::function_exists "bashop::run_command"); then
-          bashop::run_command
-        elif (bashop::utils::function_exists "bashop::${command_name}::run_command"); then
-          eval "bashop::${command_name}::run_command"
+        if (bashop::utils::function_exists "bashop::run_command::${command_name}"); then
+          eval "bashop::run_command::${command_name}"
         else
-          bashop::printer::__framework_error "Every command must define the function bashop::run_command"
+          bashop::printer::__framework_error "Every command must define the function bashop::run_command::COMMAND_NAME"
         fi
       fi
       ;;

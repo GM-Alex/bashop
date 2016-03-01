@@ -37,6 +37,21 @@ bashop::abs_dirname() {
   cd "${cwd}"
 }
 
+bashop::include_commands() {
+  if [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
+    local command
+    local commands=( ${BASHOP_APP_COMMAND_ROOT}/* )
+
+    for command in "${commands[@]}"; do
+      source ${command}
+      _BASHOP_KNOWN_COMMANDS+=( ${command##*/} )
+    done
+  fi
+}
+
+# Array for know commands
+declare -g -a _BASHOP_KNOWN_COMMANDS=()
+
 # Set needed paths
 readonly BASHOP_ROOT="$(bashop::abs_dirname "${BASH_SOURCE[0]}")"
 readonly BASHOP_APP_ROOT="$(bashop::abs_dirname "${0}")"
@@ -52,6 +67,7 @@ readonly _BASHOP_BUILD_IN_OPTIONS=(
 source "${BASHOP_ROOT}/modules/utils.sh"
 source "${BASHOP_ROOT}/modules/printer.sh"
 source "${BASHOP_ROOT}/modules/bashop.sh"
+bashop::include_commands
 source "${BASHOP_ROOT}/modules/app.sh"
 source "${BASHOP_ROOT}/modules/command.sh"
 

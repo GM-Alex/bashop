@@ -17,15 +17,15 @@ function check_echo() {
 }
 
 function check_info() {
-  local test_string=$'\033[00;34mInfo: test\n\033[0m'
+  local test_string=$'\033[00;34mtest\n\033[0m'
   local fnc_string=$(bashop::printer::info "test")
   assertion__equal "${test_string}" "${fnc_string}"
 
-  test_string=$'\033[00;34mInfo: test!\033[0m'
+  test_string=$'\033[00;34mtest!\033[0m'
   fnc_string=$(bashop::printer::info "test" "!")
   assertion__equal "${test_string}" "${fnc_string}"
 
-  test_string=$'\033[00;34mInfo: test\033[0m'
+  test_string=$'\033[00;34mtest\033[0m'
   fnc_string=$(bashop::printer::info "test" false)
   assertion__equal "${test_string}" "${fnc_string}"
 }
@@ -59,15 +59,15 @@ function check_success() {
 }
 
 function check_error() {
-  local test_string=$'\033[00;31mError: test\n\033[0m'
+  local test_string=$'\033[00;31mtest\n\033[0m'
   local fnc_string=$(bashop::printer::error "test")
   assertion__equal "${test_string}" "${fnc_string}"
 
-  test_string=$'\033[00;31mError: test!\033[0m'
+  test_string=$'\033[00;31mtest!\033[0m'
   fnc_string=$(bashop::printer::error "test" "!")
   assertion__equal "${test_string}" "${fnc_string}"
 
-  test_string=$'\033[00;31mError: test\033[0m'
+  test_string=$'\033[00;31mtest\033[0m'
   fnc_string=$(bashop::printer::error "test" false)
   assertion__equal "${test_string}" "${fnc_string}"
 }
