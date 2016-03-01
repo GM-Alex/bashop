@@ -84,7 +84,6 @@ bashop::app::__start() {
       local possible_command=()
       local command=()
       local command_path="${0}"
-      local command_name=''
       local tmp_path="${BASHOP_APP_COMMAND_ROOT}/"
       local param
 
@@ -103,17 +102,16 @@ bashop::app::__start() {
       done < ${0}
 
       local command_param
+      local command_name=''
 
       for command_param in "${possible_command[@]}"; do
-        if (bashop::utils::contains_element "${_BASHOP_KNOWN_COMMANDS[@]}" ${command_param}); then
-          if [[ ${command_name} != "" ]]; then
-            command_name+="_"
-          fi
-
+        if (bashop::utils::contains_element "${command_name}${command_param}" "${_BASHOP_KNOWN_COMMANDS[@]}"); then
           command+=( ${command_param} )
-          command_name+=${command_param}
+          command_name+="${command_param}_"
         fi
       done
+
+      command_name=${command_name::-1}
 
       if [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
         command_path="${BASHOP_APP_COMMAND_ROOT}/${command_name}"
