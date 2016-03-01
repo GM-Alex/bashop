@@ -41,7 +41,9 @@ bashop::include_commands() {
     done
   fi
 }
-# Array for know commands
+# Default vars
+declare -g -A args=()
+declare -g _BASHOP_VERBOSE=false
 declare -g -a _BASHOP_KNOWN_COMMANDS=()
 # Set needed paths
 readonly BASHOP_ROOT="$(bashop::abs_dirname "${BASH_SOURCE[0]}")"
@@ -96,7 +98,8 @@ bashop::utils::contains_element() {
 #   bool
 #####################################################
 bashop::utils::key_exists() {
-  eval '[ ${'${2}'[${1}]+key_exists} ]'
+  local check="[ \${${2}[${1}]+key_exists} ]"
+  eval ${check}
 }
 #######################################################
 # Checks if the given string matches the option format

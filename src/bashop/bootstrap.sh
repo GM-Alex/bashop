@@ -49,7 +49,9 @@ bashop::include_commands() {
   fi
 }
 
-# Array for know commands
+# Default vars
+declare -g -A args=()
+declare -g _BASHOP_VERBOSE=false
 declare -g -a _BASHOP_KNOWN_COMMANDS=()
 
 # Set needed paths

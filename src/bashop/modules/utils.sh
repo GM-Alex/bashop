@@ -48,7 +48,8 @@ bashop::utils::contains_element() {
 #   bool
 #####################################################
 bashop::utils::key_exists() {
-  eval '[ ${'${2}'[${1}]+key_exists} ]'
+  local check="[ \${${2}[${1}]+key_exists} ]"
+  eval ${check}
 }
 
 #######################################################
