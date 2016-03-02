@@ -32,6 +32,15 @@ bashop::abs_dirname() {
   pwd
   cd "${cwd}"
 }
+##########################################
+# Source the commands for the command dir
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
 bashop::include_commands() {
   if [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
     local command
@@ -41,7 +50,7 @@ bashop::include_commands() {
     done
   fi
 }
-# Default vars
+# Set default vars
 declare -g -A args=()
 declare -g _BASHOP_VERBOSE=false
 declare -g -a _BASHOP_KNOWN_COMMANDS=()
@@ -408,7 +417,7 @@ bashop::printer::help_formatter() {
     fi
   done
 }
-##########################################
+##########################
 # Checks the dependencies
 # Globals:
 #   None
@@ -416,7 +425,7 @@ bashop::printer::help_formatter() {
 #   None
 # Returns:
 #   None
-##########################################
+##########################
 bashop::check_dependencies() {
   local req_version='4.0.0'
   if !(bashop::utils::check_version ${req_version} ${BASH_VERSION}); then
@@ -426,6 +435,15 @@ bashop::check_dependencies() {
     exit 1
   fi
 }
+#########################
+# Starts the application
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#########################
 bashop::start() {
   bashop::app::__start "${@}"
 }
@@ -434,7 +452,7 @@ bashop::include_commands
 #?com build
 #?d Builds your bashop app and packs it to one file
 #?c <file> <output_dir>
-##########################################
+###########################
 # Starts the build process
 # Globals:
 #   None
@@ -442,7 +460,7 @@ bashop::include_commands
 #   None
 # Returns:
 #   None
-##########################################
+###########################
 bashop::run_command::build() {
   local start_file=${args['<file>']}
   local output_dir=${args['<output_dir>']}
@@ -454,7 +472,7 @@ bashop::run_command::build() {
   bob::build::processFile ${start_file} ${output_dir} ${output_file}
   bashop::printer::success "Build done"
 }
-##########################################
+#################################
 # Processes a file
 # Globals:
 #   None
@@ -465,7 +483,7 @@ bashop::run_command::build() {
 #   bool   is_command (optional)
 # Returns:
 #   None
-##########################################
+#################################
 bob::build::processFile() {
   local file=${1}
   local output_dir=${2}
@@ -580,7 +598,6 @@ bashop::app::__start() {
       local possible_command=()
       local command=()
       local command_path="${0}"
-      local command_name=''
       local tmp_path="${BASHOP_APP_COMMAND_ROOT}/"
       local param
       for param in ${@}; do
@@ -595,15 +612,14 @@ bashop::app::__start() {
         fi
       done < ${0}
       local command_param
+      local command_name=''
       for command_param in "${possible_command[@]}"; do
-        if (bashop::utils::contains_element "${_BASHOP_KNOWN_COMMANDS[@]}" ${command_param}); then
-          if [[ ${command_name} != "" ]]; then
-            command_name+="_"
-          fi
+        if (bashop::utils::contains_element "${command_name}${command_param}" "${_BASHOP_KNOWN_COMMANDS[@]}"); then
           command+=( ${command_param} )
-          command_name+=${command_param}
+          command_name+="${command_param}_"
         fi
       done
+      command_name=${command_name::-1}
       if [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
         command_path="${BASHOP_APP_COMMAND_ROOT}/${command_name}"
       fi

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-##########################################
+##########################
 # Checks the dependencies
 # Globals:
 #   None
@@ -8,7 +8,7 @@
 #   None
 # Returns:
 #   None
-##########################################
+##########################
 bashop::check_dependencies() {
   local req_version='4.0.0'
 
@@ -21,7 +21,15 @@ bashop::check_dependencies() {
   fi
 }
 
-
+#########################
+# Starts the application
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#########################
 bashop::start() {
   bashop::app::__start "${@}"
 }

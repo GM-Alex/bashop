@@ -37,6 +37,15 @@ bashop::abs_dirname() {
   cd "${cwd}"
 }
 
+##########################################
+# Source the commands for the command dir
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
 bashop::include_commands() {
   if [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
     local command
@@ -49,7 +58,7 @@ bashop::include_commands() {
   fi
 }
 
-# Default vars
+# Set default vars
 declare -g -A args=()
 declare -g _BASHOP_VERBOSE=false
 declare -g -a _BASHOP_KNOWN_COMMANDS=()
