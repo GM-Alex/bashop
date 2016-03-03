@@ -37,7 +37,7 @@ If an option has an short and an long option name the key is the long option nam
 * _BASHOP_CONFIG_FILE_ If set the config will be written to the file. In addition if the file exists bashop will always load the variables to the _BASHOP_CONFIG_ array.
 * _BASHOP_CONFIG_ The bashop config array.
 
-All other global options which start with an \_ should be not used. The are for internal stuff.
+All other global options which start with an \_ should be not used. They are for internal stuff.
 
 
 ## HowTo use it
