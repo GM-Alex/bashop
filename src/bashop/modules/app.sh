@@ -60,7 +60,7 @@ bashop::app::__show_help() {
 #   None
 #########################
 bashop::app::__start() {
-  # Pares config if set
+  # Parses config if set
   if [[ -n ${BASHOP_CONFIG_FILE+1} ]]; then
     bashop::config::parse
   fi
