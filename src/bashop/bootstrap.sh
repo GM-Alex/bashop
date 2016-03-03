@@ -58,13 +58,13 @@ bashop::include_commands() {
   fi
 }
 
-# Set global vars
-source "${BASHOP_ROOT}/modules/globals.sh"
-
 # Set needed paths
 readonly BASHOP_ROOT="$(bashop::abs_dirname "${BASH_SOURCE[0]}")"
 readonly BASHOP_APP_ROOT="$(bashop::abs_dirname "${0}")"
 readonly BASHOP_APP_COMMAND_ROOT="${BASHOP_APP_ROOT}/commands"
+
+# Set global vars
+source "${BASHOP_ROOT}/modules/globals.sh"
 
 # Set default options
 readonly _BASHOP_BUILD_IN_OPTIONS=(
