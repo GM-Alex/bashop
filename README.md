@@ -30,11 +30,12 @@ If an option has an short and an long option name the key is the long option nam
 
 ## Global variables
 
-* _args_
- * This is the most important global variable, which is set from the parser.
+* _args_ This is the most important global variable, which is set from the parser.
 * _BASHOP_ROOT_ The dir where bashop is stored.
 * _BASHOP_APP_ROOT_ The dir where the app is stored.
 * _BASHOP_APP_COMMAND_ROOT_ The dir where the app command scripts are stored.
+* _BASHOP_CONFIG_FILE_ If set the config will be written to the file. In addition if the file exists bashop will always load the variables to the _BASHOP_CONFIG_ array.
+* _BASHOP_CONFIG_ The bashop config array.
 
 All other global options which start it an \_ should be not used. The are for internal stuff.
 
@@ -117,6 +118,9 @@ The _#?o_ comment is parsed by the argument parser and defines the command optio
 * bashop::printer::error
 * bashop::printer::verbose
 * bashop::printer::help_formatter
+* bashop::config::parse
+* bashop::config::write
+* bashop::config::read_var_from_user
 
 All functions which start with an \_\_ double dash for example _bashop::printer::__framework_error_ are for internal stuff and should not use by your application.
 

@@ -58,10 +58,8 @@ bashop::include_commands() {
   fi
 }
 
-# Set default vars
-declare -g -A args=()
-declare -g _BASHOP_VERBOSE=false
-declare -g -a _BASHOP_KNOWN_COMMANDS=()
+# Set global vars
+source "${BASHOP_ROOT}/modules/globals.sh"
 
 # Set needed paths
 readonly BASHOP_ROOT="$(bashop::abs_dirname "${BASH_SOURCE[0]}")"
@@ -78,6 +76,7 @@ readonly _BASHOP_BUILD_IN_OPTIONS=(
 source "${BASHOP_ROOT}/modules/utils.sh"
 source "${BASHOP_ROOT}/modules/printer.sh"
 source "${BASHOP_ROOT}/modules/bashop.sh"
+source "${BASHOP_ROOT}/modules/config.sh"
 bashop::include_commands
 source "${BASHOP_ROOT}/modules/app.sh"
 source "${BASHOP_ROOT}/modules/command.sh"
