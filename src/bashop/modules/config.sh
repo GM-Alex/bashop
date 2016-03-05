@@ -122,9 +122,8 @@ bashop::config::read_var_from_user() {
 
   if [[ -n ${4+1} ]]; then
     bashop::config::declare_custom ${4}
+    eval_exec="if [[ -n \"\${${4}[\${var_name}]+1}\" ]]; then echo 'true'; fi"
   fi
-
-  eval_exec="if [[ -n \"\${${4}[\${var_name}]+1}\" ]]; then echo 'true'; fi"
 
   if [[ -n ${4+1} ]] && [[ "$(eval "${eval_exec}")" == 'true' ]]; then
     eval_exec="default_value=\"\${${4}[\${var_name}]}\""
