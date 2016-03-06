@@ -123,7 +123,6 @@ bashop::app::__start() {
 
       if [[ ${#command_name} -gt 0 ]]; then
         command_name=${command_name::-1}
-        echo ${command_name}
       else
         bashop::printer::error "Command '${possible_command[0]}' not found"
         exit 0
