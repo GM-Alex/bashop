@@ -149,6 +149,17 @@ bashop::app::__start() {
         fi
       done < "${command_path}"
 
+      local required_command_arguments=()
+      local command_argument
+
+      if [[ -n "${command_arguments[@]+1}" ]]; then
+        for command_argument in "${command_arguments[@]}"; do
+          if [[ ${command_argument} =~ ^\<.*\>$ ]]; then
+            required_command_arguments+=( ${command_argument} )
+          fi
+        done
+      fi
+
       local raw_arguments=("${@}")
 
       # Check if arguments given
@@ -173,7 +184,7 @@ bashop::app::__start() {
       fi
 
       # If no arguments given and the command needs arguments show the help page
-      if ( [[ ${#command_arguments[@]} -gt 0 ]] ) && [[ ${diff} -lt 1 ]] ||
+      if ( [[ ${#required_command_arguments[@]} -gt 0 ]] ) && [[ ${diff} -lt 1 ]] ||
          (bashop::utils::contains_element '-h' "${raw_arguments[@]}") ||
          (bashop::utils::contains_element '--help' "${raw_arguments[@]}")
       then
