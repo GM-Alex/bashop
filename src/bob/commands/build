@@ -2,6 +2,7 @@
 
 #?d Builds your bashop app and packs it to one file
 #?c <file> <output_dir>
+#?o -m --minimize  Minimizes the output.
 
 ###########################
 # Starts the build process
@@ -16,7 +17,7 @@ bashop::run_command::build() {
   local start_file=${args['<file>']}
   local output_dir=${args['<output_dir>']}
 
-  if [[ ! -d ${output_dir} ]]; then
+  if ! [[ -d ${output_dir} ]]; then
     mkdir -p ${output_dir}
   fi
 
@@ -72,13 +73,18 @@ bob::build::processFile() {
     echo "#?com ${file##*/}" >> ${output_file}
   fi
 
+  if [[ ${args['--minimize']} != true ]]; then
+    IFS=''
+  fi
+
   # Process all files and add new ones if found
-  IFS=''
   while read -r line; do
-    if [[ ${line} =~ ^([ ]*)(source )[\'\"]?([^\"\']*)[\'\"]?$ ]]; then
+    if [[ ${args['--minimize']} == true ]]  && [[ ${line} =~ ^([ ]*)#[^\?](.*)$ ]] ; then
+      continue
+    elif [[ ${line} =~ ^([ ]*)(source )[\'\"]?([^\"\']*)[\'\"]?$ ]]; then
       local file_to_include=${BASH_REMATCH[3]}
 
-      if [[ ! ${file_to_include} =~ ^\$\{command\}$ ]]; then
+      if ! [[ ${file_to_include} =~ ^\$\{command\}$ ]]; then
         file_to_include=$(eval "echo ${file_to_include}")
   
         bob::build::processFile ${file_to_include} ${output_dir} ${output_file}
