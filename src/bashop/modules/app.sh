@@ -98,6 +98,11 @@ bashop::app::__start() {
         fi
       done
 
+      if [[ ${#possible_command[@]} -lt 1 ]]; then
+        bashop::printer::error "No command given"
+        exit 0
+      fi
+
       local line
 
       while read line; do
@@ -116,7 +121,13 @@ bashop::app::__start() {
         fi
       done
 
-      command_name=${command_name::-1}
+      if [[ ${#command_name} -gt 0 ]]; then
+        command_name=${command_name::-1}
+        echo ${command_name}
+      else
+        bashop::printer::error "Command '${possible_command[0]}' not found"
+        exit 0
+      fi
 
       if [[ -d ${BASHOP_APP_COMMAND_ROOT} ]]; then
         command_path="${BASHOP_APP_COMMAND_ROOT}/${command_name}"
