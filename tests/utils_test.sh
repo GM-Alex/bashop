@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source ${DIR}/../src/bashop/modules/printer.sh
 source ${DIR}/../src/bashop/modules/utils.sh
 
 function check_isset() {
@@ -99,4 +100,34 @@ function check_check_version() {
 
   (bashop::utils::check_version '1.2.3' '2.0' )
   assertion__status_code_is_failure $?
+}
+
+function check_run_commands() {
+  local commands=()
+  commands+=( "echo \"hello\"" )
+  commands+=( "echo \"world\"" )
+  commands+=( "echo \"!\"" )
+
+  _BASHOP_VERBOSE=true
+  local fnc_string=$(bashop::utils::run_commands commands[@])
+  local test_string=''
+  test_string+=$'[1/3] ###        (33%) | Running: \'echo "hello"\'\n'
+  test_string+=$'hello\n'
+  test_string+=$'[2/3] ######     (66%) | Running: \'echo "world"\'\n'
+  test_string+=$'world\n'
+  test_string+=$'[3/3] ########## (100%) | Running: \'echo "!"\'\n'
+  test_string+=$'!'
+  assertion__equal "${test_string}" "${fnc_string}"
+
+  _BASHOP_VERBOSE=false
+  fnc_string=$(bashop::utils::run_commands commands[@])
+  test_string=''
+  test_string+=$'\r\033[K[1/3] ###        (33%) | Running: \'echo "hello"\''
+  test_string+=$'\r\033[K[2/3] ######     (66%) | Running: \'echo "world"\''
+  test_string+=$'\r\033[K[3/3] ########## (100%) | Running: \'echo "!"\''
+  assertion__equal "${test_string}" "${fnc_string}"
+
+  commands=( "command_does_not_exist" )
+  commands+=( "echo \"hello\"" )
+  assertion__failing $(bashop::utils::run_commands commands[@])
 }

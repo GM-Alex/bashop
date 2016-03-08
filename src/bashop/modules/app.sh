@@ -65,6 +65,14 @@ bashop::app::__start() {
     bashop::config::parse
   fi
 
+  local raw_arguments=("${@}")
+
+  if (bashop::utils::contains_element '-v' "${raw_arguments[@]}") ||
+     (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}")
+  then
+    _BASHOP_VERBOSE=true
+  fi
+
   # Run app init function
   if (bashop::utils::function_exists "bashop::init"); then
     bashop::init
@@ -160,8 +168,6 @@ bashop::app::__start() {
         done
       fi
 
-      local raw_arguments=("${@}")
-
       # Check if arguments given
       local no_command=${#command[@]}
       local no_args=${#raw_arguments[@]}
@@ -171,7 +177,6 @@ bashop::app::__start() {
       if (bashop::utils::contains_element '-v' "${raw_arguments[@]}") ||
          (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}")
       then
-        _BASHOP_VERBOSE=true
         local raw_arg
         local raw_args_copy=( "${raw_arguments[@]}" )
         raw_arguments=()

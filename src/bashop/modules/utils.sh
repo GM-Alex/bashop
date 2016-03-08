@@ -228,3 +228,78 @@ bashop::utils::command_exists() {
     return 1
   fi
 }
+
+################################################
+# Runs multiple commands and shows the progress
+# Globals:
+#   _BASHOP_VERBOSE
+# Arguments:
+#   array  commands
+#   string command_prefix
+# Returns:
+#   None
+################################################
+bashop::utils::run_commands() {
+  local commands=("${!1}")
+  local command_prefix=""
+
+  if [[ -n ${2+1} ]]; then
+    command_prefix=${2}
+  fi
+
+  if [[ ${command_prefix} == "sudo" ]]; then
+    sudo sleep 0.1
+  fi
+
+  local number_of_commands=${#commands[@]}
+  local counter=1
+  local full_command
+  local status
+  local step_percent
+  local command
+  local return_value
+  local return_code
+
+  for command in "${commands[@]}"; do
+    if [[ ${command_prefix} != "" ]]; then
+      full_command="${command_prefix} ${command}"
+    else
+      full_command="${command}"
+    fi
+
+    if [[ ${_BASHOP_VERBOSE} == false ]]; then
+      full_command+="&> /dev/null"
+    fi
+
+    step_percent=$(( (counter * 100) / number_of_commands ))
+    status="[${counter}/${number_of_commands}] "
+    status+=$(bashop::utils::string_repeat "#" $(( step_percent/10 )))
+    status+=$(bashop::utils::string_repeat " " $(( 10 - (step_percent/10) )))
+    status+=" (${step_percent}%)"
+    status+=" | Running: '${command}'"
+
+    if [[ ${_BASHOP_VERBOSE} == false ]]; then
+      echo -ne "\r\033[K${status}"
+    else
+      echo "${status}"
+    fi
+
+    eval "${full_command}"
+    return_code=$?
+
+    if [[ ${return_code} != 0 ]]; then
+      if [[ ${_BASHOP_VERBOSE} == false ]]; then
+        echo -ne "\n"
+      fi
+
+      bashop::printer::error "Error ${return_code} on executing '${command}'"
+      exit ${return_code}
+    fi
+
+    counter=$((counter + 1))
+  done
+
+  if [[ ${_BASHOP_VERBOSE} == false ]]; then
+    echo -ne "\n"
+  fi
+}
