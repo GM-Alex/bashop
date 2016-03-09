@@ -67,8 +67,10 @@ bashop::app::__start() {
 
   local raw_arguments=("${@}")
 
-  if (bashop::utils::contains_element '-v' "${raw_arguments[@]}") ||
-     (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}")
+  if [[ -n "${raw_arguments[@]+1}" ]] && (
+       (bashop::utils::contains_element '-v' "${raw_arguments[@]}") ||
+       (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}")
+     )
   then
     _BASHOP_VERBOSE=true
   fi

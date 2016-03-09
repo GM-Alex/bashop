@@ -73,7 +73,10 @@ bob::build::processFile() {
     echo "#?com ${file##*/}" >> ${output_file}
   fi
 
+  local current_ifs
+
   if [[ ${args['--minimize']} != true ]]; then
+    current_ifs=${IFS}
     IFS=''
   fi
 
@@ -90,9 +93,13 @@ bob::build::processFile() {
         bob::build::processFile ${file_to_include} ${output_dir} ${output_file}
       fi
     elif [[ ! ${line} =~ ^\s*$ ]] && [[ ! ${line} =~ ^#! ]]; then
-      echo ${line} >> ${output_file}
+      echo "${line}" >> ${output_file}
     fi
   done < ${tmpFile}
+
+  if [[ ${args['--minimize']} != true ]]; then
+    IFS=${current_ifs}
+  fi
 
   if [[ -f ${tmpFile} ]]; then
     rm ${tmpFile}

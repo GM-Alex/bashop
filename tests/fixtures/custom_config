@@ -1,2 +1,2 @@
-cust_var1: cust_string
-Cust_VaR2: 1
+cust_var1=cust_string
+Cust_VaR2=1

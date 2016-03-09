@@ -43,7 +43,7 @@ bashop::config::parse() {
 
   if [[ -n ${file+1} ]] && [[ -f ${file} ]]; then
     while read -r line; do
-      if [[ ${line} =~ ^[\ ]*(.*):[\ ]*(.*)[\ ]*$ ]]; then
+      if [[ ${line} =~ ^[\ ]*(.*)=(.*)[\ ]*$ ]]; then
         if [[ -n ${2+1} ]]; then
           eval "${2}[\${BASH_REMATCH[1]}]=\${BASH_REMATCH[2]}"
         else
@@ -89,13 +89,13 @@ bashop::config::write() {
 
       local eval_exec
       eval_exec="for config_key in \"\${!${2}[@]}\"; do "
-      eval_exec+="echo \"\${config_key}: \${${2}[\${config_key}]}\" >> \${file}; "
+      eval_exec+="echo \"\${config_key}=\${${2}[\${config_key}]}\" >> \${file}; "
       eval_exec+="done"
 
       eval "${eval_exec}"
     else
       for config_key in "${!BASHOP_CONFIG[@]}"; do
-        echo "${config_key}: ${BASHOP_CONFIG[${config_key}]}" >> ${file}
+        echo "${config_key}=${BASHOP_CONFIG[${config_key}]}" >> ${file}
       done
     fi
   fi
