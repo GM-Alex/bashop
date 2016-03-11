@@ -5,29 +5,35 @@
 # Globals:
 #   array args
 # Arguments:
-#   array raw_command
-#   array raw_command_arguments (optional)
-#   array raw_command_options (optional)
+#   string command description (optional)
+#   array  raw_command
+#   array  raw_command_arguments (optional)
+#   array  raw_command_options (optional)
 # Returns:
 #   None
 ##########################################
 bashop::command::__show_help() {
   # Check which arguments given and not empty
-  local raw_command=("${!1}")
+  local command_description="${1}"
+  local raw_command=("${!2}")
   local raw_command_arguments=()
 
-  if [[ -n ${!2+1} ]]; then
-    raw_command_arguments=("${!2}")
+  if [[ -n ${!3+1} ]]; then
+    raw_command_arguments=("${!3}")
   fi
 
   local raw_command_options=()
 
-  if [[ -n ${!3+1} ]]; then
-    raw_command_options=("${!3}")
+  if [[ -n ${!4+1} ]]; then
+    raw_command_options=("${!4}")
   fi
 
   # Print command usage
   local full_command="${raw_command[@]}"
+
+  if [[ ${command_description} != "" ]]; then
+    bashop::printer::echo "${command_description}" "\n\n"
+  fi
 
   bashop::printer::echo "Usage:"
   bashop::printer::echo "  ${full_command[@]} [options] " false

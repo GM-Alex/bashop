@@ -69,7 +69,8 @@ source "${BASHOP_ROOT}/modules/globals.sh"
 # Set default options
 readonly _BASHOP_BUILD_IN_OPTIONS=(
     "-h --help  Shows this help"
-    "-v --verbose  Shows more detailed information"
+    "-v --version  Shows the version information"
+    "--verbose  Shows more detailed information"
 )
 
 # Include files

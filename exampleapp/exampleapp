@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#?app example
+#?d Test application
+#?a Alexander Schneider
+#?v 1.0.0
+
 bashop::init() {
   bashop::printer::info "init: ${BASHOP_ROOT}";
 }

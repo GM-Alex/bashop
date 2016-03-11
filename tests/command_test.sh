@@ -7,6 +7,7 @@ source ${DIR}/../src/bashop/modules/command.sh
 
 function check_show_help() {
   local test_string=''
+  test_string+=$'command description\n\n'
   test_string+=$'Usage:\n'
   test_string+=$'  app command [options] <firstarg> <secondarg>\n\n'
   test_string+=$'Options:\n'
@@ -30,7 +31,7 @@ function check_show_help() {
     "-l... <arg>, --loption...=<arg>  Repeatable short and long option with arg style two [default: test]."
   )
 
-  local func_string="$(bashop::command::__show_help command_with_app_name[@] command_arguments[@] command_options[@])"
+  local func_string="$(bashop::command::__show_help "command description" command_with_app_name[@] command_arguments[@] command_options[@])"
   assertion__equal "${test_string}" "${func_string}"
 }
 

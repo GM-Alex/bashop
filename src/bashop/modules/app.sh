@@ -12,8 +12,23 @@
 bashop::app::__show_help() {
   # Print app usage
   local app_name="${1}"
+  local app_description=""
+
+  while read line; do
+    if [[ ${line} =~ ^#\?app([ ]*)(.*)$ ]]; then
+      app_name="${BASH_REMATCH[2]}"
+    elif [[ ${line} =~ ^#\?d([ ]*)(.*)$ ]]; then
+      app_description="${BASH_REMATCH[2]}"
+    fi
+  done < "${0}"
+
   bashop::printer::echo "Usage:"
   bashop::printer::echo "  ${app_name} <command> [options] <arguments>" "\n\n"
+
+  if [[ ${app_description} != "" ]]; then
+    bashop::printer::echo "${app_description}" "\n\n"
+  fi
+
   bashop::printer::echo "Commands:"
 
   local commands=( ${0} )
@@ -33,7 +48,7 @@ bashop::app::__show_help() {
 
     while read line; do
       if [[ ${line} =~ ^#\?com([ ]*)(.*)$ ]]; then
-        command_name=${BASH_REMATCH[2]}
+        command_name="${BASH_REMATCH[2]}"
       elif [[ ${line} =~ ^#\?d([ ]*)(.*)$ ]]; then
         command_description+="${BASH_REMATCH[2]}"
       elif [[ "${command_description}" != "" ]]; then
@@ -48,6 +63,31 @@ bashop::app::__show_help() {
   bashop::printer::echo "" "\n"
   bashop::printer::echo "Options:"
   bashop::printer::help_formatter _BASHOP_BUILD_IN_OPTIONS[@]
+}
+
+################################
+# Shows the application version
+# Globals:
+#   None
+# Arguments:
+#   string app_name
+# Returns:
+#   None
+################################
+bashop::app::__show_version() {
+  # Print app usage
+  local app_name="${1}"
+  local app_version=""
+
+  while read line; do
+    if [[ ${line} =~ ^#\?app([ ]*)(.*)$ ]]; then
+      app_name="${BASH_REMATCH[2]}"
+    elif [[ ${line} =~ ^#\?v([ ]*)(.*)$ ]]; then
+      app_version="${BASH_REMATCH[2]}"
+    fi
+  done < "${0}"
+
+  bashop::printer::echo "${app_name} version ${app_version}"
 }
 
 #########################
@@ -67,10 +107,8 @@ bashop::app::__start() {
 
   local raw_arguments=("${@}")
 
-  if [[ -n "${raw_arguments[@]+1}" ]] && (
-       (bashop::utils::contains_element '-v' "${raw_arguments[@]}") ||
-       (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}")
-     )
+  if [[ -n "${raw_arguments[@]+1}" ]] &&
+     (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}")
   then
     _BASHOP_VERBOSE=true
   fi
@@ -93,6 +131,9 @@ bashop::app::__start() {
   case "${first_command}" in
     "" | "-h" | "--help" )
       bashop::app::__show_help ${app_name}
+      ;;
+    "" | "-v" | "--version" )
+      bashop::app::__show_version ${app_name}
       ;;
     * )
       # Check if we have a valid command
@@ -143,6 +184,7 @@ bashop::app::__start() {
       fi
 
       # Grep options and arguments form the command file
+      local command_description=""
       local command_arguments=()
       local command_options=()
       local inline_command_processed=false
@@ -152,6 +194,8 @@ bashop::app::__start() {
           command_arguments=()
           command_options=()
           inline_command_processed=true
+        elif [[ ${line} =~ ^#\?d([ ]*)(.*)$ ]]; then
+          command_description="${BASH_REMATCH[2]}"
         elif [[ ${line} =~ ^#\?c([ ]*)(.*)$ ]]; then
           command_arguments=( ${BASH_REMATCH[2]} )
         elif [[ ${line} =~ ^#\?o([ ]*)(.*)$ ]]; then
@@ -176,15 +220,13 @@ bashop::app::__start() {
       local diff=$((no_args - no_command))
 
       # Set verbose mode
-      if (bashop::utils::contains_element '-v' "${raw_arguments[@]}") ||
-         (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}")
-      then
+      if (bashop::utils::contains_element '--verbose' "${raw_arguments[@]}"); then
         local raw_arg
         local raw_args_copy=( "${raw_arguments[@]}" )
         raw_arguments=()
 
         for raw_arg in "${raw_args_copy[@]}"; do
-          if [[ ${raw_arg} != '-v' ]] && [[ ${raw_arg} != '--verbose' ]]; then
+          if [[ ${raw_arg} != '--verbose' ]]; then
             raw_arguments+=( ${raw_arg} )
           fi
         done
@@ -196,7 +238,7 @@ bashop::app::__start() {
          (bashop::utils::contains_element '--help' "${raw_arguments[@]}")
       then
         local command_with_app_name=( "${app_name}" "${command[@]}" )
-        bashop::command::__show_help command_with_app_name[@] command_arguments[@] command_options[@]
+        bashop::command::__show_help "${command_description}" command_with_app_name[@] command_arguments[@] command_options[@]
       else
         bashop::command::__parse_arguments command[@] command_arguments[@] command_options[@] raw_arguments[@]
 
