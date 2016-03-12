@@ -74,7 +74,7 @@ bashop::config::write() {
     file=${BASHOP_CONFIG_FILE}
   fi
 
-  if [[ -n ${file+1} ]] && [[ -n "${BASHOP_CONFIG[@]+1}" ]]; then
+  if [[ -n ${file+1} ]]; then
     local dir=${file%/*}
 
     if [[ ! -d ${dir} ]]; then
@@ -93,7 +93,7 @@ bashop::config::write() {
       eval_exec+="done"
 
       eval "${eval_exec}"
-    else
+    elif [[ -n "${BASHOP_CONFIG[@]+1}" ]]; then
       for config_key in "${!BASHOP_CONFIG[@]}"; do
         echo "${config_key}=${BASHOP_CONFIG[${config_key}]}" >> ${file}
       done
