@@ -111,20 +111,22 @@ function check_run_commands() {
   _BASHOP_VERBOSE=true
   local fnc_string=$(bashop::utils::run_commands commands[@])
   local test_string=''
-  test_string+=$'[1/3] ###        (33%) | Running: \'echo "hello"\'\n'
+  test_string+=$'[1/3]            (0%) | Running: \'echo "hello"\'\n'
   test_string+=$'hello\n'
-  test_string+=$'[2/3] ######     (66%) | Running: \'echo "world"\'\n'
+  test_string+=$'[2/3] ###        (33%) | Running: \'echo "world"\'\n'
   test_string+=$'world\n'
-  test_string+=$'[3/3] ########## (100%) | Running: \'echo "!"\'\n'
-  test_string+=$'!'
+  test_string+=$'[3/3] ######     (66%) | Running: \'echo "!"\'\n'
+  test_string+=$'!\n'
+  test_string+=$'[3/3] ########## (100%) | Completed'
   assertion__equal "${test_string}" "${fnc_string}"
 
   _BASHOP_VERBOSE=false
   fnc_string=$(bashop::utils::run_commands commands[@])
   test_string=''
-  test_string+=$'\r\033[K[1/3] ###        (33%) | Running: \'echo "hello"\''
-  test_string+=$'\r\033[K[2/3] ######     (66%) | Running: \'echo "world"\''
-  test_string+=$'\r\033[K[3/3] ########## (100%) | Running: \'echo "!"\''
+  test_string+=$'\r\033[K[1/3]            (0%) | Running: \'echo "hello"\''
+  test_string+=$'\r\033[K[2/3] ###        (33%) | Running: \'echo "world"\''
+  test_string+=$'\r\033[K[3/3] ######     (66%) | Running: \'echo "!"\''
+  test_string+=$'\r\033[K[3/3] ########## (100%) | Completed'
   assertion__equal "${test_string}" "${fnc_string}"
 
   commands=( "command_does_not_exist" )

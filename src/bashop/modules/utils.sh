@@ -229,6 +229,41 @@ bashop::utils::command_exists() {
   fi
 }
 
+##############################
+# Prints the command progress
+# Globals:
+#   _BASHOP_VERBOSE
+# Arguments:
+#   integer counter
+#   integer number_of_commands
+#   string  command_text
+# Returns:
+#   None
+##############################
+bashop::utils::print_command_status() {
+  local counter=${1}
+  local step_counter=${counter}
+  local number_of_commands=${2}
+
+  if [[ ${counter} -lt ${number_of_commands} ]]; then
+    step_counter=$(( counter + 1 ))
+  fi
+
+  local command_text=${3}
+  local step_percent=$(( (counter * 100) / number_of_commands ))
+  local status="[${step_counter}/${number_of_commands}] "
+  status+=$(bashop::utils::string_repeat "#" $(( step_percent/10 )))
+  status+=$(bashop::utils::string_repeat " " $(( 10 - (step_percent/10) )))
+  status+=" (${step_percent}%)"
+  status+=${command_text}
+
+  if [[ ${_BASHOP_VERBOSE} == false ]]; then
+    echo -ne "\r\033[K${status}"
+  else
+    echo "${status}"
+  fi
+}
+
 ################################################
 # Runs multiple commands and shows the progress
 # Globals:
@@ -252,7 +287,7 @@ bashop::utils::run_commands() {
   fi
 
   local number_of_commands=${#commands[@]}
-  local counter=1
+  local counter=0
   local full_command
   local status
   local step_percent
@@ -271,18 +306,7 @@ bashop::utils::run_commands() {
       full_command+="&> /dev/null"
     fi
 
-    step_percent=$(( (counter * 100) / number_of_commands ))
-    status="[${counter}/${number_of_commands}] "
-    status+=$(bashop::utils::string_repeat "#" $(( step_percent/10 )))
-    status+=$(bashop::utils::string_repeat " " $(( 10 - (step_percent/10) )))
-    status+=" (${step_percent}%)"
-    status+=" | Running: '${command}'"
-
-    if [[ ${_BASHOP_VERBOSE} == false ]]; then
-      echo -ne "\r\033[K${status}"
-    else
-      echo "${status}"
-    fi
+    bashop::utils::print_command_status ${counter} ${number_of_commands} " | Running: '${command}'"
 
     eval "${full_command}"
     return_code=$?
@@ -298,6 +322,8 @@ bashop::utils::run_commands() {
 
     counter=$((counter + 1))
   done
+
+  bashop::utils::print_command_status ${counter} ${number_of_commands} " | Completed"
 
   if [[ ${_BASHOP_VERBOSE} == false ]]; then
     echo -ne "\n"
