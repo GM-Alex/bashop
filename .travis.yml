@@ -1,4 +1,2 @@
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get upgrade -y
+dist: trusty
 script: /bin/bash ./tests/shebang_unit ./
