@@ -9,11 +9,10 @@
 #   None
 #############################################
 bashop::config::declare_custom() {
-  local eval_exec="if [[ -z \"\${${1}[@]+1}\" ]]; then echo 'true'; fi"
+  declare -n config_array=${1}
 
-  if [[ "$(eval "${eval_exec}")" == 'true' ]]; then
-    eval_exec="declare -A -g ${1}=()"
-    eval "${eval_exec}"
+  if [[ -z ${config_array[@]+1} ]]; then
+    declare -A -g "${1}"
   fi
 }
 
@@ -37,18 +36,19 @@ bashop::config::parse() {
     file=${BASHOP_CONFIG_FILE}
   fi
 
+  local config_array_name='BASHOP_CONFIG'
+
   if [[ -n ${2+1} ]]; then
     bashop::config::declare_custom ${2}
+    config_array_name=${2}
   fi
+
+  declare -n config_array=${config_array_name}
 
   if [[ -n ${file+1} ]] && [[ -f ${file} ]]; then
     while read -r line; do
       if [[ ${line} =~ ^[\ ]*(.*)=(.*)[\ ]*$ ]]; then
-        if [[ -n ${2+1} ]]; then
-          eval "${2}[\${BASH_REMATCH[1]}]=\${BASH_REMATCH[2]}"
-        else
-          BASHOP_CONFIG[${BASH_REMATCH[1]}]=${BASH_REMATCH[2]}
-        fi
+        config_array[${BASH_REMATCH[1]}]=${BASH_REMATCH[2]}
       fi
     done < ${file}
   fi
@@ -82,22 +82,20 @@ bashop::config::write() {
     fi
 
     > ${file}
-    local config_key
+
+    local config_array_name='BASHOP_CONFIG'
 
     if [[ -n ${1+1} ]] && [[ -n ${2+1} ]]; then
       bashop::config::declare_custom ${2}
-
-      local eval_exec
-      eval_exec="for config_key in \"\${!${2}[@]}\"; do "
-      eval_exec+="echo \"\${config_key}=\${${2}[\${config_key}]}\" >> \${file}; "
-      eval_exec+="done"
-
-      eval "${eval_exec}"
-    elif [[ -n "${BASHOP_CONFIG[@]+1}" ]]; then
-      for config_key in "${!BASHOP_CONFIG[@]}"; do
-        echo "${config_key}=${BASHOP_CONFIG[${config_key}]}" >> ${file}
-      done
+      config_array_name=${2}
     fi
+
+    declare -n config_array=${config_array_name}
+    local config_key
+
+    for config_key in "${!config_array[@]}"; do
+      echo "${config_key}=${config_array[${config_key}]}" >> ${file}
+    done
   fi
 }
 
@@ -118,18 +116,18 @@ bashop::config::read_var_from_user() {
   local var_name=${1}
   local default_value
   local prompt="Set ${var_name}"
-  local eval_exec
+
+  local config_array_name='BASHOP_CONFIG'
 
   if [[ -n ${4+1} ]]; then
     bashop::config::declare_custom ${4}
-    eval_exec="if [[ -n \"\${${4}[\${var_name}]+1}\" ]]; then echo 'true'; fi"
+    config_array_name=${4}
   fi
 
-  if [[ -n ${4+1} ]] && [[ "$(eval "${eval_exec}")" == 'true' ]]; then
-    eval_exec="default_value=\"\${${4}[\${var_name}]}\""
-    eval "${eval_exec}"
-  elif [[ -n ${BASHOP_CONFIG[${var_name}]+1} ]]; then
-    default_value="${BASHOP_CONFIG[${var_name}]}"
+  declare -n config_array=${config_array_name}
+
+  if [[ -n ${config_array[${var_name}]+1} ]]; then
+    default_value="${config_array[${var_name}]}"
   elif [[ -n ${2+1} ]]; then
     default_value=${2}
   fi
@@ -150,9 +148,5 @@ bashop::config::read_var_from_user() {
     value=${default_value}
   fi
 
-  if [[ -n ${4+1} ]]; then
-    eval "${4}[${var_name}]=${value}"
-  else
-    BASHOP_CONFIG[${var_name}]=${value}
-  fi
+   config_array[${var_name}]=${value}
 }
