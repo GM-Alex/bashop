@@ -1,10 +1,10 @@
 # Bashop [![Build Status](https://travis-ci.org/GM-Alex/bashop.svg?branch=master)](https://travis-ci.org/GM-Alex/bashop)
 
-Bashop is a bash framework which makes your life easier if you want to write an bash application. It comes with the following features:
+Bashop is a bash framework which makes your life easier if you want to write a bash application. It comes with the following features:
 
 * Argument parser based on docopt.org
  * Mostly all is implemented expect the stacking of short options and the | operator for options.
- * In addition there is a option to mark options repeatable with _--all..._.
+ * In addition there is an option to mark options repeatable with _--all..._.
 * Automated help pages
 * Done in pure bash, no grep, sed etc. used.
 
@@ -25,7 +25,7 @@ Bashop is a bash framework which makes your life easier if you want to write an 
 
 The argument parser returns an associative array with the parameters and the options as key.
 Repeatable options or arguments are defined by args[NAME,#] for the number of elements and args[NAME,0] for the elements itself.
-If an option has an short and an long option name the key is the long option name. See the exampleapp for more information.
+If an option has a short and a long option name the key is the long option name. See the exampleapp for more information.
 
 
 ## Global variables
@@ -37,7 +37,7 @@ If an option has an short and an long option name the key is the long option nam
 * _BASHOP_CONFIG_FILE_ If set the config will be written to the file. In addition if the file exists bashop will always load the variables to the _BASHOP_CONFIG_ array.
 * _BASHOP_CONFIG_ The bashop config array.
 
-All other global options which start with an \_ should be not used. They are for internal stuff.
+All other global options which start with a \_ should be not used. They are for internal stuff.
 
 
 ## HowTo use it
